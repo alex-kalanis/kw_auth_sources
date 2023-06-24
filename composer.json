@@ -1,0 +1,41 @@
+{
+    "name": "alex-kalanis/kw_auth_sources",
+    "description": "Authentication sources for KWCMS",
+    "keywords": [
+        "authentication",
+        "auth",
+        "ldap",
+        "file",
+        "files",
+        "database"
+    ],
+    "license": "BSD-3-Clause",
+    "type": "library",
+    "require": {
+        "alex-kalanis/kw_locks": ">=2.0",
+        "alex-kalanis/kw_paths": ">=3.0",
+        "php": ">=7.2.0"
+    },
+    "require-dev": {
+        "ext-openssl": "*",
+        "alex-kalanis/kw_mapper": ">=2.0",
+        "alex-kalanis/kw_storage": ">=3.3",
+        "alex-kalanis/kw_files": ">=3.2",
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpstan/phpstan": "^1.0",
+        "phpstan/phpstan-phpunit": "^1.0",
+        "phpunit/phpunit": ">=7.2 <=9"
+    },
+    "suggest": {
+        "alex-kalanis/kw_mapper": "Mapper for accessing resources in KWCMS"
+    },
+    "autoload": {
+        "psr-4": {
+            "kalanis\\kw_auth_sources\\": "php-src/"
+        }
+    },
+    "scripts": {
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

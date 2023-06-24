@@ -1,0 +1,39 @@
+parameters:
+	level: 9
+	paths:
+		- 'php-src'
+	scanFiles:
+		- 'php-tests/CommonTestClass.php'
+	excludePaths:
+		- 'php-tests/_autoload.php'
+		- 'php-tests/_bootstrap.php'
+		- 'php-tests/CommonTestClass.php'
+	bootstrapFiles:
+		- 'php-tests/_bootstrap.php'
+	ignoreErrors:
+		-
+			message: '#Parameter \#1 \$lines of method kalanis\\kw_auth_sources\\Sources\\Files\\Groups\:\:saveGroups\(\) expects#'
+			path: 'php-src/Sources/Files/Groups.php'
+			# quality WTF - that structure passed okay
+		-
+			message: '#Parameter \#1 \$lines of method kalanis\\kw_auth_sources\\Sources\\Files\\AccountsSingleFile\:\:savePassword\(\) expects#'
+			path: 'php-src/Sources/Files/AccountsSingleFile.php'
+			# quality WTF - that structure passed okay
+		-
+			message: '#Parameter \#1 \$lines of method kalanis\\kw_auth_sources\\Sources\\Files\\AccountsMultiFile\:\:savePassword\(\) expects#'
+			path: 'php-src/Sources/Files/AccountsMultiFile.php'
+			# quality WTF - that structure passed okay
+		-
+			message: '#Parameter \#1 \$lines of method kalanis\\kw_auth_sources\\Sources\\Files\\AccountsMultiFile\:\:saveShadow\(\) expects#'
+			path: 'php-src/Sources/Files/AccountsMultiFile.php'
+			# quality WTF - that structure passed okay
+		-
+			message: '#Method kalanis\\kw_auth_sources\\Sources\\Mapper\\AccountsDatabase\:\:readAccounts\(\) should return#'
+			path: 'php-src/Sources/Mapper/AccountsDatabase.php'
+			# that record also contains necessary interface
+		-
+			message: '#Method kalanis\\kw_auth_sources\\Sources\\Mapper\\GroupsDatabase\:\:readGroup\(\) should return#'
+			path: 'php-src/Sources/Mapper/GroupsDatabase.php'
+			# that record also contains necessary interface
+#		- '#Parameter \#1 \$va[rl]u?e? of function strval expects bool\|float\|int\|resource\|string\|null, mixed given#'
+#			# usual strval shit
