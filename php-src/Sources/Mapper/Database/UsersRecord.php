@@ -20,6 +20,7 @@ use kalanis\kw_mapper\Records\ASimpleRecord;
  * @property string $display
  * @property string $cert
  * @property string $salt
+ * @property array<string, string|int|float|bool> $extra
  * @property GroupsRecord[] $groups
  * @codeCoverageIgnore remote source
  * Mainly seen as example, not working thing due necessity of knowing database structure
@@ -35,11 +36,12 @@ class UsersRecord extends ASimpleRecord implements IUserCert
         $this->addEntry('display', IEntryType::TYPE_STRING, 512);
         $this->addEntry('cert', IEntryType::TYPE_STRING, 8192);
         $this->addEntry('salt', IEntryType::TYPE_STRING, 1024);
+        $this->addEntry('extra', IEntryType::TYPE_ARRAY, []);
         $this->addEntry('groups', IEntryType::TYPE_ARRAY, []);
         $this->setMapper(UsersMapper::class);
     }
 
-    public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir): void
+    public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir, ?array $extra = []): void
     {
         if (empty($authId)) {
             throw new AuthSourcesException('No user ID');
@@ -49,6 +51,7 @@ class UsersRecord extends ASimpleRecord implements IUserCert
         $this->login = $authName ?? $this->login;
         $this->groupId = $authGroup ?? $this->groupId;
         $this->display = $displayName ?? $this->display;
+        $this->extra = !is_null($extra) ? array_merge($this->extra, $extra) : $this->extra;
         $this->save();
     }
 
@@ -93,6 +96,11 @@ class UsersRecord extends ASimpleRecord implements IUserCert
     public function getDir(): string
     {
         return '/';
+    }
+
+    public function getExtra(): array
+    {
+        return (array) $this->extra;
     }
 
     public function getPubSalt(): string

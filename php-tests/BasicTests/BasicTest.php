@@ -18,7 +18,8 @@ class BasicTest extends CommonTestClass
         $this->assertEmpty($user->getClass());
         $this->assertEmpty($user->getDisplayName());
         $this->assertEmpty($user->getDir());
-        $user->setUserData('123', 'lkjh', '800', 900, 12, 'DsFh', 'noooone');
+        $this->assertEmpty($user->getExtra());
+        $user->setUserData('123', 'lkjh', '800', 900, 12, 'DsFh', 'noooone', ['abc' => 'foo', 'def' => 'bar']);
         $this->assertEquals('123', $user->getAuthId());
         $this->assertEquals('lkjh', $user->getAuthName());
         $this->assertEquals('800', $user->getGroup());
@@ -26,7 +27,8 @@ class BasicTest extends CommonTestClass
         $this->assertEquals(12, $user->getStatus());
         $this->assertEquals('DsFh', $user->getDisplayName());
         $this->assertEquals('noooone', $user->getDir());
-        $user->setUserData(null, 'skdvgjb', '', null, null, 'habbx', null);
+        $this->assertEquals(['abc' => 'foo', 'def' => 'bar'], $user->getExtra());
+        $user->setUserData(null, 'skdvgjb', '', null, null, 'habbx', null, ['baz' => 'foo', 'def' => 'baz']);
         $this->assertEquals('123', $user->getAuthId());
         $this->assertEquals('skdvgjb', $user->getAuthName());
         $this->assertEquals('', $user->getGroup());
@@ -34,6 +36,7 @@ class BasicTest extends CommonTestClass
         $this->assertEquals(12, $user->getStatus());
         $this->assertEquals('habbx', $user->getDisplayName());
         $this->assertEquals('noooone', $user->getDir());
+        $this->assertEquals(['abc' => 'foo', 'def' => 'baz', 'baz' => 'foo'], $user->getExtra());
     }
 
     public function testGroup(): void
@@ -44,19 +47,22 @@ class BasicTest extends CommonTestClass
         $this->assertEmpty($group->getGroupAuthorId());
         $this->assertEmpty($group->getGroupDesc());
         $this->assertEmpty($group->getGroupParents());
-        $group->setGroupData('987', 'lkjh', 'watwat', '800', 5);
+        $this->assertEmpty($group->getGroupExtra());
+        $group->setGroupData('987', 'lkjh', 'watwat', '800', 5, [], ['abc' => 'foo', 'def' => 'bar']);
         $this->assertEquals('987', $group->getGroupId());
         $this->assertEquals('lkjh', $group->getGroupName());
         $this->assertEquals('800', $group->getGroupAuthorId());
         $this->assertEquals('watwat', $group->getGroupDesc());
         $this->assertEquals(5, $group->getGroupStatus());
-        $group->setGroupData(null, 'tfcijn', null, '', null, ['951', '357']);
+        $this->assertEquals(['abc' => 'foo', 'def' => 'bar'], $group->getGroupExtra());
+        $group->setGroupData(null, 'tfcijn', null, '', null, ['951', '357'], ['baz' => 'foo', 'def' => 'baz']);
         $this->assertEquals('987', $group->getGroupId());
         $this->assertEquals('tfcijn', $group->getGroupName());
         $this->assertEquals('', $group->getGroupAuthorId());
         $this->assertEquals('watwat', $group->getGroupDesc());
         $this->assertEquals(5, $group->getGroupStatus());
         $this->assertEquals(['951', '357'], $group->getGroupParents());
+        $this->assertEquals(['abc' => 'foo', 'def' => 'baz', 'baz' => 'foo'], $group->getGroupExtra());
     }
 
     public function testCertUser(): void

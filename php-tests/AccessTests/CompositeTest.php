@@ -27,6 +27,8 @@ class CompositeTest extends CommonTestClass
 
         $this->assertNull($lib->authenticate('whatever'));
         $this->assertNull($lib->getDataOnly('whatever'));
+        $this->assertFalse($lib->updateCertKeys('whatever', null, null));
+        $this->assertNull($lib->getCertData('whatever'));
 
         $this->assertFalse($lib->createAccount(new \MockUser(), 'not important'));
         $this->assertEmpty($lib->readAccounts());
@@ -41,5 +43,22 @@ class CompositeTest extends CommonTestClass
         $this->assertEmpty($lib->readGroup());
         $this->assertFalse($lib->updateGroup(new \MockGroup()));
         $this->assertFalse($lib->deleteGroup('whatever'));
+    }
+
+    /**
+     * @throws AuthSourcesException
+     * @throws LockException
+     */
+    public function testCerts(): void
+    {
+        $acc = new Sources\Dummy\AccountsCerts();
+        $lib = new CompositeSources($acc, $acc, new Sources\Dummy\Groups(), new Sources\Classes());
+        $this->assertInstanceOf(Sources\Dummy\Accounts::class, $lib->getAuth());
+        $this->assertInstanceOf(Sources\Dummy\AccountsCerts::class, $lib->getAccounts());
+
+        $this->assertNull($lib->authenticate('whatever'));
+        $this->assertNull($lib->getDataOnly('whatever'));
+        $this->assertFalse($lib->updateCertKeys('whatever', null, null));
+        $this->assertNull($lib->getCertData('whatever'));
     }
 }

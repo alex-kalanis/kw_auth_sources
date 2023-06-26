@@ -26,7 +26,7 @@ class LdapRecord extends ASimpleRecord implements IUser
         $this->setMapper(LdapMapper::class);
     }
 
-    public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir): void
+    public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir, ?array $extra = []): void
     {
         // load data only from ldap!
     }
@@ -64,5 +64,10 @@ class LdapRecord extends ASimpleRecord implements IUser
     public function getDir(): string
     {
         return '/';
+    }
+
+    public function getExtra(): array
+    {
+        return [];
     }
 }

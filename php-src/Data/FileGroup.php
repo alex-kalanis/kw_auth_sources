@@ -24,8 +24,10 @@ class FileGroup implements IGroup
     protected $status = 0;
     /** @var string[] */
     protected $parents = [];
+    /** @var array<string, string|int|float|bool> */
+    protected $extra = [];
 
-    public function setGroupData(?string $id, ?string $name, ?string $desc, ?string $authorId, ?int $status, ?array $parents = []): void
+    public function setGroupData(?string $id, ?string $name, ?string $desc, ?string $authorId, ?int $status, ?array $parents = [], ?array $extra = []): void
     {
         $this->id = $id ?? $this->id;
         $this->name = $name ?? $this->name;
@@ -33,6 +35,7 @@ class FileGroup implements IGroup
         $this->author = $authorId ?? $this->author;
         $this->status = $status ?? $this->status;
         $this->parents = $parents ?? $this->parents;
+        $this->extra = !is_null($extra) ? array_merge($this->extra, $extra) : $this->extra;
     }
 
     public function getGroupId(): string
@@ -66,5 +69,10 @@ class FileGroup implements IGroup
     public function getGroupParents(): array
     {
         return $this->parents;
+    }
+
+    public function getGroupExtra(): array
+    {
+        return $this->extra;
     }
 }

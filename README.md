@@ -8,7 +8,27 @@
 [![License](https://poser.pugx.org/alex-kalanis/kw_auth_sources/license.svg?v=1)](https://packagist.org/packages/alex-kalanis/kw_auth_sources)
 [![Code Coverage](https://scrutinizer-ci.com/g/alex-kalanis/kw_auth_sources/badges/coverage.png?b=master&v=1)](https://scrutinizer-ci.com/g/alex-kalanis/kw_auth_sources/?branch=master)
 
-Authentication to your site - where the data with accounts are stored
+Authentication to site - where the data with accounts are stored.
+
+These libraries represent internal getters and setters to access accounts on target
+site. Just configure where to find them and it's possible to process all basic yet
+necessary things. It's based on real *nix files and structures.
+
+There are three parts. First one is usual accounts itself. Second one is groups
+\- limit access to things in accordance with preset groups on accounts. And third
+one is system classes. That limits access too, but it is written directly into
+the code of each part and it is not need to rely on group ids and if they exists.
+So groups limits interactions between users and system classes between user and
+system.
+
+It has variants and interfaces for possibility to use single account file, multiple
+account files, certificates with passwords and groups. The account files can be
+switched to different implementations. Or database can be used as data source for
+both accounts and groups. And either example one on kw_mapper or your own
+implementation.
+
+Your system probably do not need the same things as mine. So some things can be
+ignored and another can be available under "extra".
 
 ## PHP Installation
 

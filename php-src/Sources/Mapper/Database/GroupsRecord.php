@@ -18,6 +18,7 @@ use kalanis\kw_mapper\Records\ASimpleRecord;
  * @property string $authorId
  * @property string $parents
  * @property int $status
+ * @property array<string, string|int|float|bool> $extra
  * @property UsersRecord[] $authors
  * @property UsersRecord[] $members
  * @codeCoverageIgnore remote source
@@ -34,12 +35,13 @@ class GroupsRecord extends ASimpleRecord implements IGroup
         $this->addEntry('authorId', IEntryType::TYPE_STRING, 128);
         $this->addEntry('parents', IEntryType::TYPE_STRING, 2048);
         $this->addEntry('status', IEntryType::TYPE_INTEGER, 4);
+        $this->addEntry('extra', IEntryType::TYPE_ARRAY, []);
         $this->addEntry('authors', IEntryType::TYPE_ARRAY, []);
         $this->addEntry('members', IEntryType::TYPE_ARRAY, []);
         $this->setMapper(GroupsMapper::class);
     }
 
-    public function setGroupData(?string $id, ?string $name, ?string $desc, ?string $authorId, ?int $status, ?array $parents = []): void
+    public function setGroupData(?string $id, ?string $name, ?string $desc, ?string $authorId, ?int $status, ?array $parents = [], ?array $extra = []): void
     {
         $this->id = $id ?? $this->id;
         $this->name = $name ?? $this->name;
@@ -47,6 +49,7 @@ class GroupsRecord extends ASimpleRecord implements IGroup
         $this->authorId = $authorId ?? $this->authorId;
         $this->status = $status ?? $this->status;
         $this->parents = $parents ? $this->compactStr($parents) : $this->parents;
+        $this->extra = !is_null($extra) ? array_merge($this->extra, $extra) : $this->extra;
     }
 
     public function getGroupId(): string
@@ -77,5 +80,10 @@ class GroupsRecord extends ASimpleRecord implements IGroup
     public function getGroupParents(): array
     {
         return $this->separateStr($this->parents);
+    }
+
+    public function getGroupExtra(): array
+    {
+        return (array) $this->extra;
     }
 }

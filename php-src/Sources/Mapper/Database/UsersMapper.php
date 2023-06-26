@@ -3,7 +3,9 @@
 namespace kalanis\kw_auth_sources\Sources\Mapper\Database;
 
 
+use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Mappers\Database\ADatabase;
+use kalanis\kw_mapper\Records\ARecord;
 
 
 /**
@@ -24,7 +26,44 @@ class UsersMapper extends ADatabase
         $this->setRelation('display', 'u_display');
         $this->setRelation('cert', 'u_cert');
         $this->setRelation('salt', 'u_salt');
+        $this->setRelation('extra', 'u_extra');
         $this->addPrimaryKey('id');
         $this->addForeignKey('groups', GroupsRecord::class, 'groupId', 'id');
+    }
+
+    /**
+     * @param ARecord $record
+     * @throws MapperException
+     * @return bool
+     */
+    protected function afterLoad(ARecord $record): bool
+    {
+        $entry = $record->getEntry('extra');
+        $entry->setData(json_decode($entry->getData(), true), true);
+        return parent::afterLoad($record);
+    }
+
+    /**
+     * @param ARecord $record
+     * @throws MapperException
+     * @return bool
+     */
+    protected function beforeInsert(ARecord $record): bool
+    {
+        $entry = $record->getEntry('extra');
+        $entry->setData(json_encode($entry->getData()));
+        return parent::beforeInsert($record);
+    }
+
+    /**
+     * @param ARecord $record
+     * @throws MapperException
+     * @return bool
+     */
+    protected function beforeUpdate(ARecord $record): bool
+    {
+        $entry = $record->getEntry('extra');
+        $entry->setData(json_encode($entry->getData()));
+        return parent::beforeUpdate($record);
     }
 }

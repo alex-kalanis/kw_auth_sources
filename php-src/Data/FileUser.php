@@ -27,8 +27,10 @@ class FileUser implements IUser
     protected $displayName = '';
     /** @var string */
     protected $dir = '';
+    /** @var array<string, string|int|float|bool> */
+    protected $extra = [];
 
-    public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir): void
+    public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir, ?array $extra = []): void
     {
         $this->authId = $authId ?? $this->authId;
         $this->authName = $authName ?? $this->authName;
@@ -37,6 +39,7 @@ class FileUser implements IUser
         $this->authStatus = $authStatus ?? $this->authStatus;
         $this->displayName = $displayName ?? $this->displayName;
         $this->dir = $dir ?? $this->dir;
+        $this->extra = !is_null($extra) ? array_merge($this->extra, $extra) : $this->extra;
     }
 
     public function getAuthId(): string
@@ -72,5 +75,10 @@ class FileUser implements IUser
     public function getDir(): string
     {
         return $this->dir;
+    }
+
+    public function getExtra(): array
+    {
+        return $this->extra;
     }
 }

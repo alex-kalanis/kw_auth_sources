@@ -4,15 +4,13 @@ namespace kalanis\kw_auth_sources\Access;
 
 
 use kalanis\kw_auth_sources\Interfaces;
-use kalanis\kw_auth_sources\Interfaces\IGroup;
-use kalanis\kw_auth_sources\Interfaces\IUser;
 
 
 /**
  * Class CompositeSources
  * @package kalanis\kw_auth_sources\Access
  */
-class CompositeSources implements Interfaces\IAuth, Interfaces\IWorkAccounts, Interfaces\IWorkClasses, Interfaces\IWorkGroups
+class CompositeSources implements Interfaces\IAuthCert, Interfaces\IWorkAccounts, Interfaces\IWorkClasses, Interfaces\IWorkGroups
 {
     /** @var Interfaces\IAuth */
     protected $auth = null;
@@ -31,17 +29,33 @@ class CompositeSources implements Interfaces\IAuth, Interfaces\IWorkAccounts, In
         $this->groups = $groups;
     }
 
-    public function getDataOnly(string $userName): ?IUser
+    public function getDataOnly(string $userName): ?Interfaces\IUser
     {
         return $this->auth->getDataOnly($userName);
     }
 
-    public function authenticate(string $userName, array $params = []): ?IUser
+    public function authenticate(string $userName, array $params = []): ?Interfaces\IUser
     {
         return $this->auth->authenticate($userName);
     }
 
-    public function createAccount(IUser $user, string $password): bool
+    public function updateCertKeys(string $userName, ?string $certKey, ?string $certSalt): bool
+    {
+        if ($this->auth instanceof Interfaces\IAuthCert) {
+            return $this->auth->updateCertKeys($userName, $certKey, $certSalt);
+        }
+        return false;
+    }
+
+    public function getCertData(string $userName): ?Interfaces\IUserCert
+    {
+        if ($this->auth instanceof Interfaces\IAuthCert) {
+            return $this->auth->getCertData($userName);
+        }
+        return null;
+    }
+
+    public function createAccount(Interfaces\IUser $user, string $password): bool
     {
         return $this->accounts->createAccount($user, $password);
     }
@@ -51,7 +65,7 @@ class CompositeSources implements Interfaces\IAuth, Interfaces\IWorkAccounts, In
         return $this->accounts->readAccounts();
     }
 
-    public function updateAccount(IUser $user): bool
+    public function updateAccount(Interfaces\IUser $user): bool
     {
         return $this->accounts->updateAccount($user);
     }
@@ -71,12 +85,12 @@ class CompositeSources implements Interfaces\IAuth, Interfaces\IWorkAccounts, In
         return $this->classes->readClasses();
     }
 
-    public function createGroup(IGroup $group): bool
+    public function createGroup(Interfaces\IGroup $group): bool
     {
         return $this->groups->createGroup($group);
     }
 
-    public function getGroupDataOnly(string $groupId): ?IGroup
+    public function getGroupDataOnly(string $groupId): ?Interfaces\IGroup
     {
         return $this->groups->getGroupDataOnly($groupId);
     }
@@ -86,7 +100,7 @@ class CompositeSources implements Interfaces\IAuth, Interfaces\IWorkAccounts, In
         return $this->groups->readGroup();
     }
 
-    public function updateGroup(IGroup $group): bool
+    public function updateGroup(Interfaces\IGroup $group): bool
     {
         return $this->groups->updateGroup($group);
     }

@@ -55,7 +55,7 @@ class CommonTestClass extends TestCase
 
 class MockUser implements Interfaces\IUser
 {
-    public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir): void
+    public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir, ?array $extra = []): void
     {
     }
 
@@ -93,12 +93,17 @@ class MockUser implements Interfaces\IUser
     {
         return 'not_available\\:///';
     }
+
+    public function getExtra(): array
+    {
+        return [];
+    }
 }
 
 
 class MockGroup implements Interfaces\IGroup
 {
-    public function setGroupData(?string $id, ?string $name, ?string $desc, ?string $authorId, ?int $status, ?array $parents = []): void
+    public function setGroupData(?string $id, ?string $name, ?string $desc, ?string $authorId, ?int $status, ?array $parents = [], ?array $extra = []): void
     {
     }
 
@@ -128,6 +133,11 @@ class MockGroup implements Interfaces\IGroup
     }
 
     public function getGroupParents(): array
+    {
+        return [];
+    }
+
+    public function getGroupExtra(): array
     {
         return [];
     }

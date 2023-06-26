@@ -28,20 +28,55 @@ interface IUser
      * @param int|null $authStatus
      * @param string|null $displayName
      * @param string|null $dir
+     * @param array<string, string|int|float|bool>|null $extra
      */
-    public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir): void;
+    public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir, ?array $extra = []): void;
 
+    /**
+     * ID in system, usualy number, but can use string, so I pass string
+     * @return string
+     */
     public function getAuthId(): string;
 
+    /**
+     * Human-understandable name of account; usually this one is login
+     * @return string
+     */
     public function getAuthName(): string;
 
+    /**
+     * ID of group of account; similar rule as with user ID
+     * @return string
+     */
     public function getGroup(): string;
 
+    /**
+     * Class of user in system
+     * @return int
+     */
     public function getClass(): int;
 
+    /**
+     * Status of user in system - like enabled, limited access, ...
+     * @return int
+     */
     public function getStatus(): int;
 
+    /**
+     * What will be shown to others; can be the same with auth name
+     * @return string
+     */
     public function getDisplayName(): string;
 
+    /**
+     * Home directory of user on file-based storages like kwcms
+     * @return string
+     */
     public function getDir(): string;
+
+    /**
+     * Extra data about user
+     * @return array<string, string|int|float|bool>
+     */
+    public function getExtra(): array;
 }
