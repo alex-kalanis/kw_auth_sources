@@ -26,8 +26,8 @@ trait TAuthLock
     }
 
     /**
-     * @return ILock
      * @throws AuthSourcesException
+     * @return ILock
      */
     protected function getLock(): ILock
     {

@@ -22,15 +22,15 @@ interface IExpire
 
     /**
      * Return if authentication expire in following time
-     * @return bool
      * @throws AuthSourcesException
+     * @return bool
      */
     public function willExpire(): bool;
 
     /**
      * When it expire
-     * @return int
      * @throws AuthSourcesException
+     * @return int
      */
     public function getExpireTime(): int;
 
