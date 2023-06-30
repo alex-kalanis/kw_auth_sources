@@ -10,6 +10,9 @@ use kalanis\kw_auth_sources\Statuses;
 use kalanis\kw_auth_sources\Sources;
 use kalanis\kw_auth_sources\Traits\TLang;
 use kalanis\kw_files\Access\CompositeAdapter;
+use kalanis\kw_files\Interfaces\IFLTranslations;
+use kalanis\kw_locks\Interfaces\IKLTranslations;
+use kalanis\kw_locks\Interfaces\ILock;
 use kalanis\kw_locks\LockException;
 use kalanis\kw_locks\Methods as lock_methods;
 use kalanis\kw_storage\Interfaces\IStorage;
@@ -29,7 +32,7 @@ class Factory
     }
 
     /**
-     * @param object|string|array<string|int, object|string> $params
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>>|string|object $params
      * @throws AuthSourcesException
      * @throws LockException
      * @return CompositeSources
@@ -114,7 +117,250 @@ class Factory
             }
         } elseif (is_array($params)) {
             // now it became a bit complicated...
+            if (isset($params['path']) && is_string($params['path'])) {
+                $params['storage'] = $params['path'];
+                $params['status'] = true;
+                unset($params['path']);
+            }
+            if (isset($params['source']) && is_string($params['source'])) {
+                $params['storage'] = $params['source'];
+                $params['status'] = true;
+                unset($params['source']);
+            }
+            $storage = $this->whichStorage($params);
+            $hash = $this->whichHash($params);
+            $status = $this->whichStatus($params);
+            $lock = $this->whichLocks($params);
+            $accounts = $this->getAccounts($params, $storage, $hash, $status, $lock);
+            $auth = ($accounts instanceof Interfaces\IAuth) ? $accounts : $this->getAuth($params, $storage, $hash, $status, $lock);
+            return new CompositeSources(
+                $auth,
+                $accounts,
+                $this->getGroups($params, $storage, $accounts, $lock),
+                $this->getClasses($params)
+            );
         }
         throw new AuthSourcesException($this->getAusLang()->kauCombinationUnavailable());
+    }
+
+    /**
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
+     * @throws AuthSourcesException
+     * @return Sources\Files\Storages\AStorage
+     */
+    protected function whichStorage(array $params): Sources\Files\Storages\AStorage
+    {
+        if (isset($params['storage'])) {
+            if (is_object($params['storage']) && ($params['storage'] instanceof Sources\Files\Storages\AStorage)) {
+                return $params['storage'];
+            }
+            if (is_object($params['storage']) && ($params['storage'] instanceof IStorage)) {
+                return new Sources\Files\Storages\Storage($params['storage'], $this->getAusLang());
+            }
+            if (is_object($params['storage']) && ($params['storage'] instanceof CompositeAdapter)) {
+                $storageLang = null;
+                if (isset($params['storage_lang']) && ($params['storage_lang'] instanceof IFLTranslations)) {
+                    $storageLang = $params['storage_lang'];
+                }
+                if (!$storageLang && (($localLang = $this->getAusLang()) instanceof IFLTranslations)) {
+                    $storageLang = $localLang;
+                }
+                return new Sources\Files\Storages\Files($params['storage'], $this->getAusLang(), $storageLang);
+            }
+            if (is_string($params['storage']) && ($pt = realpath($params['storage']))) {
+                return new Sources\Files\Storages\Volume($pt . DIRECTORY_SEPARATOR, $this->getAusLang());
+            }
+        }
+        throw new AuthSourcesException($this->getAusLang()->kauCombinationUnavailable());
+    }
+
+    /**
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
+     * @return Interfaces\IHashes
+     */
+    protected function whichHash(array $params): Interfaces\IHashes
+    {
+        if (isset($params['hash'])) {
+            if (is_object($params['hash']) && $params['hash'] instanceof Interfaces\IHashes) {
+                return $params['hash'];
+            }
+            if (is_string($params['hash'])) {
+                return new Hashes\KwOrig($params['hash'], $this->getAusLang());
+            }
+        }
+        return new Hashes\CoreLib();
+    }
+
+    /**
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
+     * @throws AuthSourcesException
+     * @return Interfaces\IStatus
+     */
+    protected function whichStatus(array $params): Interfaces\IStatus
+    {
+        if (isset($params['status'])) {
+            if (is_object($params['status']) && $params['status'] instanceof Interfaces\IStatus) {
+                return $params['status'];
+            }
+            if (is_string($params['status'])) {
+                return ('always' == $params['status']) ? new Statuses\Always() : new Statuses\Checked();
+            }
+            if (is_numeric($params['status'])) {
+                return boolval(intval($params['status'])) ? new Statuses\Always() : new Statuses\Checked();
+            }
+            if (is_bool($params['status'])) {
+                return $params['status'] ? new Statuses\Always() : new Statuses\Checked();
+            }
+        }
+        throw new AuthSourcesException($this->getAusLang()->kauCombinationUnavailable());
+    }
+
+    /**
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
+     * @throws AuthSourcesException
+     * @return ILock
+     */
+    protected function whichLocks(array $params): ILock
+    {
+        try {
+            $lockLang = null;
+            if (isset($params['lock_lang']) && ($params['lock_lang'] instanceof IKLTranslations)) {
+                $lockLang = $params['lock_lang'];
+            }
+            if (!$lockLang && (($localLang = $this->getAusLang()) instanceof IKLTranslations)) {
+                $lockLang = $localLang;
+            }
+            if (isset($params['lock'])) {
+                if (is_object($params['lock']) && ($params['lock'] instanceof ILock)) {
+                    return $params['lock'];
+                }
+                if (is_object($params['lock']) && ($params['lock'] instanceof IStorage)) {
+                    return new lock_methods\StorageLock($params['lock'], $lockLang);
+                }
+                if (is_object($params['lock']) && ($params['lock'] instanceof CompositeAdapter)) {
+                    return new lock_methods\FilesLock($params['lock'], $lockLang);
+                }
+                if (is_string($params['lock']) && ($pt = realpath($params['lock']))) {
+                    return new lock_methods\FileLock($pt . DIRECTORY_SEPARATOR . 'auth.lock', $lockLang);
+                }
+            } elseif (isset($params['storage'])) {
+                if (is_object($params['storage']) && ($params['storage'] instanceof ILock)) {
+                    return $params['storage'];
+                }
+                if (is_object($params['storage']) && ($params['storage'] instanceof IStorage)) {
+                    return new lock_methods\StorageLock($params['storage'], $lockLang);
+                }
+                if (is_object($params['storage']) && ($params['storage'] instanceof CompositeAdapter)) {
+                    return new lock_methods\FilesLock($params['storage'], $lockLang);
+                }
+                if (is_string($params['storage']) && ($pt = realpath($params['storage']))) {
+                    return new lock_methods\FileLock($pt . DIRECTORY_SEPARATOR . 'auth.lock', $lockLang);
+                }
+            }
+            // @codeCoverageIgnoreStart
+        } catch (LockException $ex) {
+            // dies FileLock
+            throw new AuthSourcesException($ex->getMessage(), $ex->getCode(), $ex);
+        }
+        // @codeCoverageIgnoreEnd
+        throw new AuthSourcesException($this->getAusLang()->kauCombinationUnavailable());
+    }
+
+    /**
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
+     * @param Sources\Files\Storages\AStorage $storage
+     * @param Interfaces\IHashes $hash
+     * @param Interfaces\IStatus $status
+     * @param ILock $lock
+     * @return Interfaces\IAuth
+     */
+    protected function getAuth(
+        array $params,
+        Sources\Files\Storages\AStorage $storage,
+        Interfaces\IHashes $hash,
+        Interfaces\IStatus $status,
+        ILock $lock
+    ): Interfaces\IAuth
+    {
+        if (isset($params['auth']) && ($params['auth'] instanceof Interfaces\IAuth)) {
+            return $params['auth'];
+        }
+        if (isset($params['single_file'])) {
+            return new Sources\Files\AccountsSingleFile($storage, $hash, $status, $lock, $this->clearedPath($params), $this->getAusLang());
+        }
+        return new Sources\Files\AccountsMultiFile($storage, $hash, $status, $lock, $this->clearedPath($params), $this->getAusLang());
+    }
+
+    /**
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
+     * @param Sources\Files\Storages\AStorage $storage
+     * @param Interfaces\IHashes $hash
+     * @param Interfaces\IStatus $status
+     * @param ILock $lock
+     * @return Interfaces\IWorkAccounts
+     */
+    protected function getAccounts(
+        array $params,
+        Sources\Files\Storages\AStorage $storage,
+        Interfaces\IHashes $hash,
+        Interfaces\IStatus $status,
+        ILock $lock
+    ): Interfaces\IWorkAccounts
+    {
+        if (isset($params['accounts']) && ($params['accounts'] instanceof Interfaces\IWorkAccounts)) {
+            return $params['accounts'];
+        }
+        if (isset($params['single_file'])) {
+            return new Sources\Files\AccountsSingleFile($storage, $hash, $status, $lock, $this->clearedPath($params), $this->getAusLang());
+        }
+        return new Sources\Files\AccountsMultiFile($storage, $hash, $status, $lock, $this->clearedPath($params), $this->getAusLang());
+    }
+
+    /**
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
+     * @param Sources\Files\Storages\AStorage $storage
+     * @param Interfaces\IWorkAccounts $accounts
+     * @param ILock $lock
+     * @return Interfaces\IWorkGroups
+     */
+    protected function getGroups(
+        array $params,
+        Sources\Files\Storages\AStorage $storage,
+        Interfaces\IWorkAccounts $accounts,
+        ILock $lock
+    ): Interfaces\IWorkGroups
+    {
+        if (isset($params['groups']) && ($params['groups'] instanceof Interfaces\IWorkGroups)) {
+            return $params['groups'];
+        }
+        return new Sources\Files\Groups($storage, $accounts, $lock, $this->clearedPath($params), $this->getAusLang());
+    }
+
+    /**
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
+     * @return Interfaces\IWorkClasses
+     */
+    protected function getClasses(array $params): Interfaces\IWorkClasses
+    {
+        if (isset($params['classes']) && ($params['classes'] instanceof Interfaces\IWorkClasses)) {
+            return $params['classes'];
+        }
+        return new Sources\Classes();
+    }
+
+    /**
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
+     * @return string[]
+     */
+    protected function clearedPath(array $params): array
+    {
+        $path = [];
+        if (isset($params['path']) && is_array($params['path'])) {
+            $path = array_map('strval', $params['path']);
+        }
+        if (isset($params['source']) && is_array($params['source'])) {
+            $path = array_map('strval', $params['source']);
+        }
+        return array_values($path);
     }
 }

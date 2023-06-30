@@ -52,7 +52,7 @@ familiar with composer)
 
 3.) Connect the "kalanis\kw_auth_sources" into your app. Extends it for setting your case. For details use example.
 
-4.) Just call setting and render
+4.) Just call \kalanis\kw_auth_sources\Access\Factory in your code
 
 ## Caveats
 

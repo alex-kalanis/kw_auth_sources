@@ -12,28 +12,40 @@ parameters:
 		- 'php-tests/_bootstrap.php'
 	ignoreErrors:
 		-
+			# quality WTF - that structure passed okay
 			message: '#Parameter \#1 \$lines of method kalanis\\kw_auth_sources\\Sources\\Files\\Groups\:\:saveGroups\(\) expects#'
 			path: 'php-src/Sources/Files/Groups.php'
-			# quality WTF - that structure passed okay
 		-
+			# quality WTF - that structure passed okay
 			message: '#Parameter \#1 \$lines of method kalanis\\kw_auth_sources\\Sources\\Files\\AccountsSingleFile\:\:savePassword\(\) expects#'
 			path: 'php-src/Sources/Files/AccountsSingleFile.php'
-			# quality WTF - that structure passed okay
 		-
+			# quality WTF - that structure passed okay
 			message: '#Parameter \#1 \$lines of method kalanis\\kw_auth_sources\\Sources\\Files\\AccountsMultiFile\:\:savePassword\(\) expects#'
 			path: 'php-src/Sources/Files/AccountsMultiFile.php'
-			# quality WTF - that structure passed okay
 		-
+			# quality WTF - that structure passed okay
 			message: '#Parameter \#1 \$lines of method kalanis\\kw_auth_sources\\Sources\\Files\\AccountsMultiFile\:\:saveShadow\(\) expects#'
 			path: 'php-src/Sources/Files/AccountsMultiFile.php'
-			# quality WTF - that structure passed okay
 		-
+			# that record also contains necessary interface
 			message: '#Method kalanis\\kw_auth_sources\\Sources\\Mapper\\AccountsDatabase\:\:readAccounts\(\) should return#'
 			path: 'php-src/Sources/Mapper/AccountsDatabase.php'
-			# that record also contains necessary interface
 		-
+			# that record also contains necessary interface
 			message: '#Method kalanis\\kw_auth_sources\\Sources\\Mapper\\GroupsDatabase\:\:readGroup\(\) should return#'
 			path: 'php-src/Sources/Mapper/GroupsDatabase.php'
-			# that record also contains necessary interface
-#		- '#Parameter \#1 \$va[rl]u?e? of function strval expects bool\|float\|int\|resource\|string\|null, mixed given#'
-#			# usual strval shit
+		-
+			# json encoded
+			message: '#Parameter \#1 \$data of method kalanis\\kw_mapper\\Records\\Entry\:\:setData\(\) expects#'
+			path: 'php-src/Sources/Mapper/Database/UsersMapper.php'
+		-
+			# json encoded
+			message: '#Parameter \#1 \$data of method kalanis\\kw_mapper\\Records\\Entry\:\:setData\(\) expects#'
+			path: 'php-src/Sources/Mapper/Database/GroupsMapper.php'
+		-
+			# callbacks
+			message: '#Parameter \#1 \$callback of function array_map expects#'
+			path: 'php-src/Access/Factory.php'
+		# usual strval/intval shit
+		- '#Parameter \#1 \$va[rl]u?e? of function [si][tn][rt]val expects bool\|float\|int\|resource\|string\|null#'

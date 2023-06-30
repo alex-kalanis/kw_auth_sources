@@ -39,7 +39,7 @@ class GroupsMapper extends ADatabase
     protected function afterLoad(ARecord $record): bool
     {
         $entry = $record->getEntry('extra');
-        $entry->setData(json_decode($entry->getData(), true), true);
+        $entry->setData(json_decode(strval($entry->getData()), true), true);
         return parent::afterLoad($record);
     }
 
