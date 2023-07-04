@@ -29,7 +29,8 @@ class AccountsMultiFile implements Interfaces\IAuthCert, Interfaces\IWorkAccount
     const PW_STATUS = 4;
     const PW_DISPLAY = 5;
     const PW_DIR = 6;
-    const PW_FEED = 7;
+    const PW_EXTRA = 7;
+    const PW_FEED = 8;
 
     const SH_NAME = 0;
     const SH_PASS = 1;
@@ -45,6 +46,8 @@ class AccountsMultiFile implements Interfaces\IAuthCert, Interfaces\IWorkAccount
     protected $mode = null;
     /** @var Interfaces\IStatus */
     protected $status = null;
+    /** @var Interfaces\IExtraParser */
+    protected $extraParser = null;
     /** @var string[] */
     protected $path = [];
 
@@ -52,11 +55,20 @@ class AccountsMultiFile implements Interfaces\IAuthCert, Interfaces\IWorkAccount
      * @param Storages\AStorage $storage
      * @param Interfaces\IHashes $mode
      * @param Interfaces\IStatus $status
+     * @param Interfaces\IExtraParser $parser
      * @param ILock $lock
      * @param string[] $path
      * @param Interfaces\IKAusTranslations|null $lang
      */
-    public function __construct(Storages\AStorage $storage, Interfaces\IHashes $mode, Interfaces\IStatus $status, ILock $lock, array $path, ?Interfaces\IKAusTranslations $lang = null)
+    public function __construct(
+        Storages\AStorage $storage,
+        Interfaces\IHashes $mode,
+        Interfaces\IStatus $status,
+        Interfaces\IExtraParser $parser,
+        ILock $lock,
+        array $path,
+        ?Interfaces\IKAusTranslations $lang = null
+    )
     {
         $this->setAusLang($lang);
         $this->initAuthLock($lock);
@@ -64,6 +76,7 @@ class AccountsMultiFile implements Interfaces\IAuthCert, Interfaces\IWorkAccount
         $this->path = $path;
         $this->mode = $mode;
         $this->status = $status;
+        $this->extraParser = $parser;
     }
 
     public function authenticate(string $userName, array $params = []): ?Interfaces\IUser
@@ -125,7 +138,8 @@ class AccountsMultiFile implements Interfaces\IAuthCert, Interfaces\IWorkAccount
                     intval($line[static::PW_CLASS]),
                     $this->transformFromStringToInt(strval($line[static::PW_STATUS])),
                     strval($line[static::PW_DISPLAY]),
-                    strval($line[static::PW_DIR])
+                    strval($line[static::PW_DIR]),
+                    $this->extraParser->expand($line[static::PW_EXTRA])
                 );
                 return $user;
             }
@@ -275,6 +289,7 @@ class AccountsMultiFile implements Interfaces\IAuthCert, Interfaces\IWorkAccount
             static::PW_STATUS => $this->transformFromIntToString($user->getStatus()),
             static::PW_DISPLAY => empty($displayName) ? $userName : $displayName,
             static::PW_DIR => $directory,
+            static::PW_EXTRA => $this->extraParser->compact($user->getExtra()),
             static::PW_FEED => '',
         ];
         ksort($newUserPass);
@@ -325,7 +340,8 @@ class AccountsMultiFile implements Interfaces\IAuthCert, Interfaces\IWorkAccount
                 intval($line[static::PW_CLASS]),
                 $this->transformFromStringToInt(strval($line[static::PW_STATUS])),
                 strval($line[static::PW_DISPLAY]),
-                strval($line[static::PW_DIR])
+                strval($line[static::PW_DIR]),
+                $this->extraParser->expand($line[static::PW_EXTRA])
             );
             $result[] = $record;
         }
@@ -364,6 +380,7 @@ class AccountsMultiFile implements Interfaces\IAuthCert, Interfaces\IWorkAccount
                 $line[static::PW_STATUS] = $this->transformFromIntToString($user->getStatus());
                 $line[static::PW_DISPLAY] = !empty($displayName) ? $displayName : $line[static::PW_DISPLAY] ;
                 $line[static::PW_DIR] = !empty($directory) ? $directory : $line[static::PW_DIR] ;
+                $line[static::PW_EXTRA] = !empty($user->getExtra()) ? $this->extraParser->compact($user->getExtra()) : $line[static::PW_EXTRA] ;
             }
         }
 
@@ -469,5 +486,14 @@ class AccountsMultiFile implements Interfaces\IAuthCert, Interfaces\IWorkAccount
     protected function saveShadow(array $lines): bool
     {
         return $this->storage->write(array_merge($this->path, [Interfaces\IFile::SHADE_FILE]), $lines);
+    }
+
+    /**
+     * @return string
+     * @codeCoverageIgnore translation
+     */
+    protected function noDirectoryDelimiterSet(): string
+    {
+        return $this->getAusLang()->kauNoDelimiterSet();
     }
 }

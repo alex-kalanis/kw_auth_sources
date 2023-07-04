@@ -29,7 +29,8 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
     const PW_STATUS = 5;
     const PW_DISPLAY = 6;
     const PW_DIR = 7;
-    const PW_FEED = 8;
+    const PW_EXTRA = 8;
+    const PW_FEED = 9;
 
     /** @var Storages\AStorage */
     protected $storage = null;
@@ -37,6 +38,8 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
     protected $mode = null;
     /** @var Interfaces\IStatus */
     protected $status = null;
+    /** @var Interfaces\IExtraParser */
+    protected $extraParser = null;
     /** @var string[] */
     protected $path = [];
 
@@ -44,18 +47,28 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
      * @param Storages\AStorage $storage where is it stored and how to access there
      * @param Interfaces\IHashes $mode hashing mode
      * @param Interfaces\IStatus $status which status is necessary to use that feature
+     * @param Interfaces\IExtraParser $parser parsing extra arguments from and to string
      * @param ILock $lock file lock
      * @param string[] $path use full path with file name
      * @param Interfaces\IKAusTranslations|null $lang
      */
-    public function __construct(Storages\AStorage $storage, Interfaces\IHashes $mode, Interfaces\IStatus $status, ILock $lock, array $path, ?Interfaces\IKAusTranslations $lang = null)
+    public function __construct(
+        Storages\AStorage $storage,
+        Interfaces\IHashes $mode,
+        Interfaces\IStatus $status,
+        Interfaces\IExtraParser $parser,
+        ILock $lock,
+        array $path,
+        ?Interfaces\IKAusTranslations $lang = null
+    )
     {
         $this->setAusLang($lang);
+        $this->initAuthLock($lock);
         $this->storage = $storage;
         $this->mode = $mode;
         $this->status = $status;
         $this->path = $path;
-        $this->initAuthLock($lock);
+        $this->extraParser = $parser;
     }
 
     public function authenticate(string $userName, array $params = []): ?Interfaces\IUser
@@ -108,6 +121,7 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
 
     /**
      * @param array<int, string|int|float> $line
+     * @throws AuthSourcesException
      * @return Interfaces\IUser
      */
     protected function getUserClass(array &$line): Interfaces\IUser
@@ -120,7 +134,8 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
             intval($line[static::PW_CLASS]),
             $this->transformFromStringToInt(strval($line[static::PW_STATUS])),
             strval($line[static::PW_DISPLAY]),
-            strval($line[static::PW_DIR])
+            strval($line[static::PW_DIR]),
+            $this->extraParser->expand($line[static::PW_EXTRA])
         );
         return $user;
     }
@@ -161,6 +176,7 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
             static::PW_STATUS => $this->transformFromIntToString($user->getStatus()),
             static::PW_DISPLAY => empty($displayName) ? $userName : $displayName,
             static::PW_DIR => $directory,
+            static::PW_EXTRA => $this->extraParser->compact($user->getExtra()),
             static::PW_FEED => '',
         ];
         ksort($newUserPass);
@@ -210,6 +226,7 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
                 $line[static::PW_STATUS] = $this->transformFromIntToString($user->getStatus());
                 $line[static::PW_DISPLAY] = !empty($displayName) ? $displayName : $line[static::PW_DISPLAY] ;
                 $line[static::PW_DIR] = !empty($directory) ? $directory : $line[static::PW_DIR] ;
+                $line[static::PW_EXTRA] = !empty($user->getExtra()) ? $this->extraParser->compact($user->getExtra()) : $line[static::PW_EXTRA] ;
             }
         }
 
@@ -303,5 +320,14 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
     protected function savePassword(array $lines): bool
     {
         return $this->storage->write($this->path, $lines);
+    }
+
+    /**
+     * @return string
+     * @codeCoverageIgnore translation
+     */
+    protected function noDirectoryDelimiterSet(): string
+    {
+        return $this->getAusLang()->kauNoDelimiterSet();
     }
 }

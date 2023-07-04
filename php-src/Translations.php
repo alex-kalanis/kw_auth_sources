@@ -65,4 +65,13 @@ class Translations implements IKAusTranslations
     {
         return 'This combination is not available!';
     }
+
+    /**
+     * @return string
+     * @codeCoverageIgnore only on really specific installations
+     */
+    public function kauNoDelimiterSet(): string
+    {
+        return 'No delimiter set in auth files!';
+    }
 }

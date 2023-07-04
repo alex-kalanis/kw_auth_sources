@@ -10,6 +10,7 @@ use kalanis\kw_auth_sources\Interfaces\IExpire;
 use kalanis\kw_auth_sources\Sources;
 use kalanis\kw_locks\Interfaces\ILock;
 use kalanis\kw_locks\LockException;
+use kalanis\kw_paths\PathsException;
 
 
 class FilesTest extends CommonTestClass
@@ -36,6 +37,7 @@ class FilesTest extends CommonTestClass
     /**
      * @param string $in
      * @param string $want
+     * @throws PathsException
      * @dataProvider exImProvider
      */
     public function testExIm(string $in, string $want): void
@@ -112,6 +114,11 @@ class FilesTest extends CommonTestClass
 class MockLines
 {
     use Sources\TLines;
+
+    protected function noDirectoryDelimiterSet(): string
+    {
+        return 'mock';
+    }
 }
 
 

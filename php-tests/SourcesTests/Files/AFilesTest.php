@@ -5,12 +5,14 @@ namespace SourcesTests\Files;
 
 use CommonTestClass;
 use kalanis\kw_auth_sources\AuthSourcesException;
+use kalanis\kw_auth_sources\ExtraParsers;
 use kalanis\kw_auth_sources\Interfaces\IFile;
 use kalanis\kw_auth_sources\Interfaces\IKAusTranslations;
 use kalanis\kw_auth_sources\Sources\Files;
 use kalanis\kw_auth_sources\Statuses\Always;
 use kalanis\kw_auth_sources\Traits\TLang;
 use kalanis\kw_locks\LockException;
+use MockHashes;
 
 
 abstract class AFilesTest extends CommonTestClass
@@ -27,6 +29,7 @@ abstract class AFilesTest extends CommonTestClass
         return new Files\Groups(
             $this->getStoragesFullFiles(),
             $this->fullFilesSources(),
+            new ExtraParsers\Serialize(),
             $this->getLockPath(),
             $this->sourcePath
         );
@@ -41,8 +44,9 @@ abstract class AFilesTest extends CommonTestClass
     {
         return new Files\AccountsMultiFile(
             $this->getStoragesFullFiles(),
-            new \MockHashes(),
+            new MockHashes(),
             new Always(),
+            new ExtraParsers\Serialize(),
             $this->getLockPath(),
             $this->sourcePath
         );
@@ -52,10 +56,10 @@ abstract class AFilesTest extends CommonTestClass
     {
         return new XStorage([
             'data' . DIRECTORY_SEPARATOR . IFile::PASS_FILE
-            => 'owner:1000:0:1:1:Owner:/data/:' . "\r\n"
-                . 'manager:1001:1:2:1:Manage:/data/:' . "\r\n"
+            => 'owner:1000:0:1:1:Owner:/data/::' . "\r\n"
+                . 'manager:1001:1:2:1:Manage:/data/::' . "\r\n"
                 . '# commented out' . "\r\n"
-                . 'worker:1002:1:3:1:Worker:/data/:' . "\r\n"
+                . 'worker:1002:1:3:1:Worker:/data/::' . "\r\n"
             // last line is intentionally empty one
             ,
             'data' . DIRECTORY_SEPARATOR . IFile::SHADE_FILE
@@ -66,10 +70,10 @@ abstract class AFilesTest extends CommonTestClass
             // last line is intentionally empty one
             ,
             'data' . DIRECTORY_SEPARATOR . IFile::GROUP_FILE
-            => '0:root:1000:Maintainers:1:' . "\r\n"
-                . '1:admin:1000:Administrators:1:' . "\r\n"
+            => '0:root:1000:Maintainers:1::' . "\r\n"
+                . '1:admin:1000:Administrators:1::' . "\r\n"
                 . '# commented out' . "\r\n"
-                . '2:user:1000:All users:1:' . "\r\n"
+                . '2:user:1000:All users:1::' . "\r\n"
             // last line is intentionally empty one
         ]);
     }
@@ -83,8 +87,9 @@ abstract class AFilesTest extends CommonTestClass
     {
         return new Files\AccountsMultiFile(
             $this->getStoragesPartial(),
-            new \MockHashes(),
+            new MockHashes(),
             new Always(),
+            new ExtraParsers\Serialize(),
             $this->getLockPath(),
             $this->sourcePath
         );
@@ -111,8 +116,9 @@ abstract class AFilesTest extends CommonTestClass
     {
         return new Files\AccountsSingleFile(
             $this->getStoragePartial(),
-            new \MockHashes(),
+            new MockHashes(),
             new Always(),
+            new ExtraParsers\Serialize(),
             $this->getLockPath(),
             $this->sourcePath
         );
@@ -140,6 +146,7 @@ abstract class AFilesTest extends CommonTestClass
         return new Files\Groups(
             new XStorage(),
             $this->emptyFilesSources(),
+            new ExtraParsers\Serialize(),
             $this->getLockPath(),
             $this->sourcePath
         );
@@ -155,6 +162,7 @@ abstract class AFilesTest extends CommonTestClass
         return new Files\Groups(
             new XStorage(),
             $this->fullFilesSources(),
+            new ExtraParsers\Serialize(),
             $this->getLockPath(),
             $this->sourcePath
         );
@@ -169,8 +177,9 @@ abstract class AFilesTest extends CommonTestClass
     {
         return new Files\AccountsMultiFile(
             new XStorage(),
-            new \MockHashes(),
+            new MockHashes(),
             new Always(),
+            new ExtraParsers\Serialize(),
             $this->getLockPath(),
             $this->sourcePath
         );
@@ -185,8 +194,9 @@ abstract class AFilesTest extends CommonTestClass
     {
         return new Files\AccountsSingleFile(
             new XStorage(),
-            new \MockHashes(),
+            new MockHashes(),
             new Always(),
+            new ExtraParsers\Serialize(),
             $this->getLockPath(),
             $this->sourcePath
         );
@@ -225,5 +235,10 @@ class XStorage extends Files\Storages\AStorage
         $pt = implode(DIRECTORY_SEPARATOR, $path);
         $this->storage[$pt] = $data;
         return true;
+    }
+
+    protected function noDirectoryDelimiterSet(): string
+    {
+        return 'mock';
     }
 }

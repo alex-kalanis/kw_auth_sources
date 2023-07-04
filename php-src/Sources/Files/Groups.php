@@ -30,29 +30,41 @@ class Groups implements Interfaces\IWorkGroups
     const GRP_DESC = 3;
     const GRP_STATUS = 4;
     const GRP_PARENTS = 5;
-    const GRP_FEED = 6;
+    const GRP_EXTRA = 6;
+    const GRP_FEED = 7;
 
     /** @var Storages\AStorage */
     protected $storage = null;
     /** @var Interfaces\IWorkAccounts */
     protected $accounts = null;
+    /** @var Interfaces\IExtraParser */
+    protected $extraParser = null;
     /** @var string[] */
     protected $path = [];
 
     /**
      * @param Storages\AStorage $storage
      * @param Interfaces\IWorkAccounts $accounts
+     * @param Interfaces\IExtraParser $parser
      * @param ILock $lock
      * @param string[] $path
      * @param Interfaces\IKAusTranslations|null $lang
      */
-    public function __construct(Storages\AStorage $storage, Interfaces\IWorkAccounts $accounts, ILock $lock, array $path, ?Interfaces\IKAusTranslations $lang = null)
+    public function __construct(
+        Storages\AStorage $storage,
+        Interfaces\IWorkAccounts $accounts,
+        Interfaces\IExtraParser $parser,
+        ILock $lock,
+        array $path,
+        ?Interfaces\IKAusTranslations $lang = null
+    )
     {
         $this->setAusLang($lang);
         $this->initAuthLock($lock);
         $this->storage = $storage;
         $this->path = $path;
         $this->accounts = $accounts;
+        $this->extraParser = $parser;
     }
 
     public function createGroup(Interfaces\IGroup $group): bool
@@ -89,6 +101,7 @@ class Groups implements Interfaces\IWorkGroups
             static::GRP_DESC => !empty($groupDesc) ? $groupDesc : $groupName,
             static::GRP_STATUS => $group->getGroupStatus(),
             static::GRP_PARENTS => $this->compactStr($group->getGroupParents()),
+            static::GRP_EXTRA => $this->extraParser->compact($group->getGroupExtra()),
             static::GRP_FEED => '',
         ];
         ksort($newGroup);
@@ -135,6 +148,7 @@ class Groups implements Interfaces\IWorkGroups
 
     /**
      * @param array<int, string> $line
+     * @throws AuthSourcesException
      * @return Interfaces\IGroup
      */
     protected function getGroupClass(array &$line): Interfaces\IGroup
@@ -146,7 +160,8 @@ class Groups implements Interfaces\IWorkGroups
             strval($line[static::GRP_DESC]),
             strval($line[static::GRP_AUTHOR]),
             intval($line[static::GRP_STATUS]),
-            $this->separateStr($line[static::GRP_PARENTS])
+            $this->separateStr($line[static::GRP_PARENTS]),
+            $this->extraParser->expand($line[static::GRP_EXTRA])
         );
         return $group;
     }
@@ -177,6 +192,7 @@ class Groups implements Interfaces\IWorkGroups
                 $line[static::GRP_DESC] = !empty($groupDesc) ? $groupDesc : $line[static::GRP_DESC] ;
                 $line[static::GRP_STATUS] = $group->getGroupStatus();
                 $line[static::GRP_PARENTS] = $this->compactStr($group->getGroupParents());
+                $line[static::GRP_EXTRA] = $this->extraParser->compact($group->getGroupExtra());
             }
         }
 
@@ -261,5 +277,14 @@ class Groups implements Interfaces\IWorkGroups
     protected function saveGroups(array $lines): bool
     {
         return $this->storage->write(array_merge($this->path, [Interfaces\IFile::GROUP_FILE]), $lines);
+    }
+
+    /**
+     * @return string
+     * @codeCoverageIgnore translation
+     */
+    protected function noDirectoryDelimiterSet(): string
+    {
+        return $this->getAusLang()->kauNoDelimiterSet();
     }
 }

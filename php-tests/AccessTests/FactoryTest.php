@@ -4,11 +4,10 @@ namespace AccessTests;
 
 
 use CommonTestClass;
-use kalanis\kw_auth_sources\Access\CompositeSources;
-use kalanis\kw_auth_sources\Access\Factory;
+use kalanis\kw_auth_sources\Access;
 use kalanis\kw_auth_sources\AuthSourcesException;
+use kalanis\kw_auth_sources\ExtraParsers;
 use kalanis\kw_auth_sources\Interfaces;
-use kalanis\kw_auth_sources\Interfaces\IUser;
 use kalanis\kw_auth_sources\Sources\Classes;
 use kalanis\kw_auth_sources\Sources\Files\Storages\AStorage;
 use kalanis\kw_auth_sources\Statuses\Always;
@@ -40,8 +39,8 @@ class FactoryTest extends CommonTestClass
         if (is_array($param) && isset($param['xlang']) && ($param['xlang'] instanceof Interfaces\IKAusTranslations)) {
             $lang = $param['xlang'];
         }
-        $lib = new Factory($lang);
-        $this->assertInstanceOf(CompositeSources::class, $lib->getSources($param));
+        $lib = new Access\Factory($lang);
+        $this->assertInstanceOf(Access\CompositeSources::class, $lib->getSources($param));
     }
 
     /**
@@ -55,7 +54,7 @@ class FactoryTest extends CommonTestClass
     {
         $storage = new Storage(new DefaultKey(), new Memory());
         return [
-            [(new Factory())->getSources('db')],
+            [(new Access\Factory())->getSources('db')],
             ['ldap'],
             ['db'],
             [(new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data')],
@@ -64,24 +63,24 @@ class FactoryTest extends CommonTestClass
 
             [['source' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data']],
             [$storage],
-            [['storage' => __DIR__ . DIRECTORY_SEPARATOR . '..', 'status' => 'sometimes', 'source' => ['data']]], // system directory with sub-dir, not every status
-            [['storage' => new XLockedStorage(), 'status' => 1]], // combined storage and lock, no check limited for parts
-            [['storage' => new \XFailedStorage(), 'status' => new Always()]], // IStorage, object status check
+            [['storage' => __DIR__ . DIRECTORY_SEPARATOR . '..', 'status' => 'sometimes', 'parser' => 'php', 'source' => ['data']]], // system directory with sub-dir, not every status
+            [['storage' => new XLockedStorage(), 'status' => 1, 'parser' => 1]], // combined storage and lock, no check limited for parts
+            [['storage' => new \XFailedStorage(), 'status' => new Always(), 'parser' => 'serial']], // IStorage, object status check
 
-            [['storage' => (new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..'), 'path' => ['data'], 'status' => 1, 'storage_lang' => new XFlLang()]], // CompositeAdapter, object status check
-            [['storage' => (new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..'), 'source' => ['data'], 'status' => false, 'xlang' => new XAuLang()]], // CompositeAdapter, object status check
-            [['storage' => new \XFailedStorage(), 'hash' => new \MockHashes(), 'status' => new Always()]], // IStorage, object status check, hash object
-            [['storage' => new \XFailedStorage(), 'hash' => 'yxcvbnmasdfghjklqwertzuiop9876543210', 'status' => new Always()]], // IStorage, object status check, hash with one string
-            [['storage' => new \XFailedStorage(), 'status' => true, 'lock' => new lock_methods\StorageLock(new \XFailedStorage()), 'single_file' => true]], // IStorage, bool status check, lock defined, only single file with accounts
+            [['storage' => (new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..'), 'path' => ['data'], 'status' => 1, 'parser' => 1, 'storage_lang' => new XFlLang()]], // CompositeAdapter, object status check
+            [['storage' => (new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..'), 'source' => ['data'], 'status' => false, 'parser' => false, 'xlang' => new XAuLang()]], // CompositeAdapter, object status check
+            [['storage' => new \XFailedStorage(), 'hash' => new \MockHashes(), 'status' => new Always(), 'parser' => new ExtraParsers\None()]], // IStorage, object status check, hash object
+            [['storage' => new \XFailedStorage(), 'hash' => 'yxcvbnmasdfghjklqwertzuiop9876543210', 'status' => new Always(), 'parser' => new ExtraParsers\Json()]], // IStorage, object status check, hash with one string
+            [['storage' => new \XFailedStorage(), 'status' => true, 'parser' => true, 'lock' => new lock_methods\StorageLock(new \XFailedStorage()), 'single_file' => true]], // IStorage, bool status check, lock defined, only single file with accounts
 
-            [['storage' => new \XFailedStorage(), 'status' => true, 'lock' => new \XFailedStorage(), 'lock_lang' => new XLockLang()]], // IStorage, bool status check, lock source, lock lang extra
-            [['storage' => (new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..'), 'status' => true, 'lock' => (new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..')]], // CompositeAdapter, bool status check, lock source
-            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'classes' => new Classes()]], // path as string, classes as outside class
-            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'groups' => new XMockGroups()]], // path as string, groups as outside class
-            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'accounts' => new XMockAccount()]], // path as string, account as outside class
+            [['storage' => new \XFailedStorage(), 'status' => true, 'parser' => true, 'lock' => new \XFailedStorage(), 'lock_lang' => new XLockLang()]], // IStorage, bool status check, lock source, lock lang extra
+            [['storage' => (new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..'), 'status' => true, 'parser' => 'none', 'lock' => (new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..')]], // CompositeAdapter, bool status check, lock source
+            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'classes' => new Classes(), 'parser' => 'any']], // path as string, classes as outside class
+            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'groups' => new XMockGroups(), 'parser' => 0]], // path as string, groups as outside class
+            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'accounts' => new XMockAccount(), 'parser' => 0]], // path as string, account as outside class
 
-            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'accounts' => new XMockAccount(), 'auth' => new XMockAuth()]], // path as string, account as outside class, auth as outside class
-            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'accounts' => new XMockAccount(), 'single_file' => true]], // path as string, account as outside class, auth in single file
+            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'accounts' => new XMockAccount(), 'auth' => new XMockAuth(), 'parser' => 0]], // path as string, account as outside class, auth as outside class
+            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'accounts' => new XMockAccount(), 'single_file' => true, 'parser' => 0]], // path as string, account as outside class, auth in single file
         ];
     }
 
@@ -93,7 +92,7 @@ class FactoryTest extends CommonTestClass
      */
     public function testFail($param): void
     {
-        $lib = new Factory();
+        $lib = new Access\Factory();
         $this->expectException(AuthSourcesException::class);
         $lib->getSources($param);
     }
@@ -118,6 +117,7 @@ class FactoryTest extends CommonTestClass
             [['storage' => null]], // failed storage
             [['storage' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'status' => null]], // failed status
             [['storage' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'status' => 1, 'lock' => 123]], // failed lock
+//            [['storage' => new \XFailedStorage(), 'status' => true, 'lock' => new \XFailedStorage(), 'lock_lang' => new XLockLang()]], // still no parser
         ];
     }
 }
@@ -173,6 +173,11 @@ class XLockedStorage extends AStorage implements ILock
     {
         $this->lock = false;
         return true;
+    }
+
+    protected function noDirectoryDelimiterSet(): string
+    {
+        return $this->getAusLang()->kauNoDelimiterSet();
     }
 }
 
@@ -367,6 +372,11 @@ class XAuLang extends XFlLang implements Interfaces\IKAusTranslations, IKLTransl
         return 'mock';
     }
 
+    public function kauNoDelimiterSet(): string
+    {
+        return 'mock';
+    }
+
     public function iklLockedByOther(): string
     {
         return 'mock';
@@ -430,7 +440,7 @@ class XMockGroups implements Interfaces\IWorkGroups
 
 class XMockAccount implements Interfaces\IWorkAccounts
 {
-    public function createAccount(IUser $user, string $password): bool
+    public function createAccount(Interfaces\IUser $user, string $password): bool
     {
         return false;
     }
@@ -440,7 +450,7 @@ class XMockAccount implements Interfaces\IWorkAccounts
         return [];
     }
 
-    public function updateAccount(IUser $user): bool
+    public function updateAccount(Interfaces\IUser $user): bool
     {
         return false;
     }
@@ -459,12 +469,12 @@ class XMockAccount implements Interfaces\IWorkAccounts
 
 class XMockAuth implements Interfaces\IAuth
 {
-    public function getDataOnly(string $userName): ?IUser
+    public function getDataOnly(string $userName): ?Interfaces\IUser
     {
         return null;
     }
 
-    public function authenticate(string $userName, array $params = []): ?IUser
+    public function authenticate(string $userName, array $params = []): ?Interfaces\IUser
     {
         return null;
     }

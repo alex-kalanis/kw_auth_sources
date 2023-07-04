@@ -51,4 +51,13 @@ class Files extends AStorage
             throw new AuthSourcesException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
+
+    /**
+     * @return string
+     * @codeCoverageIgnore translation
+     */
+    protected function noDirectoryDelimiterSet(): string
+    {
+        return $this->getAusLang()->kauNoDelimiterSet();
+    }
 }

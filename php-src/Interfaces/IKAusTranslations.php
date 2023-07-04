@@ -29,4 +29,6 @@ interface IKAusTranslations
     public function kauHashFunctionNotFound(): string;
 
     public function kauCombinationUnavailable(): string;
+
+    public function kauNoDelimiterSet(): string;
 }
