@@ -33,7 +33,7 @@ class Factory
     }
 
     /**
-     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>>|string|object $params
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>>|string|object|int|bool|null $params
      * @throws AuthSourcesException
      * @throws LockException
      * @return CompositeSources
