@@ -1,6 +1,6 @@
 <?php
 
-namespace kalanis\kw_auth_sources\Sources;
+namespace kalanis\kw_auth_sources\Traits;
 
 
 use kalanis\kw_auth_sources\Interfaces\IFile;
@@ -8,7 +8,7 @@ use kalanis\kw_auth_sources\Interfaces\IFile;
 
 /**
  * Trait TSeparated
- * @package kalanis\kw_auth_sources\Sources
+ * @package kalanis\kw_auth_sources\Traits
  * Separate values in entry
  */
 trait TSeparated

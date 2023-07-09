@@ -8,7 +8,7 @@ use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\Hashes;
 
 
-class ModeTest extends CommonTestClass
+class HashesTest extends CommonTestClass
 {
     /**
      * @param string $what

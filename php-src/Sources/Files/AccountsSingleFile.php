@@ -6,7 +6,7 @@ namespace kalanis\kw_auth_sources\Sources\Files;
 use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\Data\FileUser;
 use kalanis\kw_auth_sources\Interfaces;
-use kalanis\kw_auth_sources\Sources;
+use kalanis\kw_auth_sources\Traits;
 use kalanis\kw_locks\Interfaces\ILock;
 
 
@@ -17,9 +17,9 @@ use kalanis\kw_locks\Interfaces\ILock;
  */
 class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
 {
-    use Sources\TAuthLock;
-    use Sources\TLines;
-    use Sources\TStatusTransform;
+    use Traits\TAuthLock;
+    use Traits\TLines;
+    use Traits\TStatusTransform;
 
     const PW_ID = 0;
     const PW_NAME = 1;

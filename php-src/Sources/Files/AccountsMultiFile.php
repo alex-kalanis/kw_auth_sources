@@ -6,7 +6,7 @@ namespace kalanis\kw_auth_sources\Sources\Files;
 use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\Data\FileCertUser;
 use kalanis\kw_auth_sources\Interfaces;
-use kalanis\kw_auth_sources\Sources;
+use kalanis\kw_auth_sources\Traits;
 use kalanis\kw_locks\Interfaces\ILock;
 
 
@@ -17,10 +17,10 @@ use kalanis\kw_locks\Interfaces\ILock;
  */
 class AccountsMultiFile implements Interfaces\IAuthCert, Interfaces\IWorkAccounts
 {
-    use Sources\TAuthLock;
-    use Sources\TExpiration;
-    use Sources\TLines;
-    use Sources\TStatusTransform;
+    use Traits\TAuthLock;
+    use Traits\TExpiration;
+    use Traits\TLines;
+    use Traits\TStatusTransform;
 
     const PW_NAME = 0;
     const PW_ID = 1;

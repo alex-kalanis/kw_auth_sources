@@ -1,6 +1,6 @@
 <?php
 
-namespace kalanis\kw_auth_sources\Sources;
+namespace kalanis\kw_auth_sources\Traits;
 
 
 use kalanis\kw_auth_sources\Interfaces\IFile;
@@ -10,7 +10,7 @@ use kalanis\kw_paths\PathsException;
 
 /**
  * Trait TLines
- * @package kalanis\kw_auth_sources\Sources
+ * @package kalanis\kw_auth_sources\Traits
  * Processing lines of accounts in files
  */
 trait TLines

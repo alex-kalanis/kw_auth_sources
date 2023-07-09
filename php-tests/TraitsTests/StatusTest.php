@@ -1,11 +1,10 @@
 <?php
 
-namespace BasicTests;
+namespace TraitsTests;
 
 
 use CommonTestClass;
-use kalanis\kw_auth_sources\Sources\TStatusTransform;
-use kalanis\kw_auth_sources\Sources\TUserStatuses;
+use kalanis\kw_auth_sources\Traits;
 
 
 class StatusTest extends CommonTestClass
@@ -39,7 +38,7 @@ class StatusTest extends CommonTestClass
 
 class XStatusTransform
 {
-    use TStatusTransform;
+    use Traits\TStatusTransform;
 
     public function from(?int $value): string
     {
@@ -55,5 +54,5 @@ class XStatusTransform
 
 class XStatusList
 {
-    use TUserStatuses;
+    use Traits\TUserStatuses;
 }

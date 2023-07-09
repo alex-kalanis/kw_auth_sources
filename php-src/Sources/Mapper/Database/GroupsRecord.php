@@ -4,7 +4,7 @@ namespace kalanis\kw_auth_sources\Sources\Mapper\Database;
 
 
 use kalanis\kw_auth_sources\Interfaces\IGroup;
-use kalanis\kw_auth_sources\Sources\TSeparated;
+use kalanis\kw_auth_sources\Traits\TSeparated;
 use kalanis\kw_mapper\Interfaces\IEntryType;
 use kalanis\kw_mapper\Records\ASimpleRecord;
 

@@ -6,7 +6,7 @@ namespace kalanis\kw_auth_sources\Sources\Files;
 use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\Data\FileGroup;
 use kalanis\kw_auth_sources\Interfaces;
-use kalanis\kw_auth_sources\Sources;
+use kalanis\kw_auth_sources\Traits;
 use kalanis\kw_locks\Interfaces\ILock;
 use kalanis\kw_locks\LockException;
 
@@ -18,10 +18,10 @@ use kalanis\kw_locks\LockException;
  */
 class Groups implements Interfaces\IWorkGroups
 {
-    use Sources\TAuthLock;
-    use Sources\TLines;
-    use Sources\TSeparated;
-    use Sources\TStatusTransform;
+    use Traits\TAuthLock;
+    use Traits\TLines;
+    use Traits\TSeparated;
+    use Traits\TStatusTransform;
 
     // default positions
     const GRP_ID = 0;

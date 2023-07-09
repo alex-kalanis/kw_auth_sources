@@ -5,7 +5,7 @@ namespace kalanis\kw_auth_sources\Sources\Files\Storages;
 
 use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\Interfaces\IFile;
-use kalanis\kw_auth_sources\Sources\TLines;
+use kalanis\kw_auth_sources\Traits\TLines;
 
 
 /**

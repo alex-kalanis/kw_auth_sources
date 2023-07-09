@@ -1,17 +1,16 @@
 <?php
 
-namespace kalanis\kw_auth_sources\Sources;
+namespace kalanis\kw_auth_sources\Traits;
 
 
 use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Traits\TLang;
 use kalanis\kw_locks\Interfaces\ILock;
 use kalanis\kw_locks\LockException;
 
 
 /**
  * Trait TAuthLock
- * @package kalanis\kw_auth_sources\Sources
+ * @package kalanis\kw_auth_sources\Traits
  */
 trait TAuthLock
 {

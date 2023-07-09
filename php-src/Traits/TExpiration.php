@@ -1,6 +1,6 @@
 <?php
 
-namespace kalanis\kw_auth_sources\Sources;
+namespace kalanis\kw_auth_sources\Traits;
 
 
 use kalanis\kw_auth_sources\AuthSourcesException;
@@ -9,7 +9,7 @@ use kalanis\kw_auth_sources\Interfaces\IExpire;
 
 /**
  * Trait TExpiration
- * @package kalanis\kw_auth_sources\Sources
+ * @package kalanis\kw_auth_sources\Traits
  * Expiration of password
  */
 trait TExpiration

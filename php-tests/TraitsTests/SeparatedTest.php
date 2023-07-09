@@ -3,7 +3,7 @@
 namespace TraitsTests;
 
 
-use kalanis\kw_auth_sources\Sources\TSeparated;
+use kalanis\kw_auth_sources\Traits\TSeparated;
 
 
 class SeparatedTest extends \CommonTestClass

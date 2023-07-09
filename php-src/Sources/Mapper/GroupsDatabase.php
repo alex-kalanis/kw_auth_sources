@@ -4,7 +4,7 @@ namespace kalanis\kw_auth_sources\Sources\Mapper;
 
 
 use kalanis\kw_auth_sources\Interfaces;
-use kalanis\kw_auth_sources\Sources\TSeparated;
+use kalanis\kw_auth_sources\Traits\TSeparated;
 use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Search\Search;
 

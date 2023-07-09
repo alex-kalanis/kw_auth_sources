@@ -7,7 +7,7 @@ use CommonTestClass;
 use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\Data\TExpire;
 use kalanis\kw_auth_sources\Interfaces\IExpire;
-use kalanis\kw_auth_sources\Sources;
+use kalanis\kw_auth_sources\Traits;
 use kalanis\kw_locks\Interfaces\ILock;
 use kalanis\kw_locks\LockException;
 use kalanis\kw_paths\PathsException;
@@ -113,7 +113,7 @@ class FilesTest extends CommonTestClass
 
 class MockLines
 {
-    use Sources\TLines;
+    use Traits\TLines;
 
     protected function noDirectoryDelimiterSet(): string
     {
@@ -124,7 +124,7 @@ class MockLines
 
 class MockAuthLock
 {
-    use Sources\TAuthLock;
+    use Traits\TAuthLock;
 
     public function __construct(?ILock $lock)
     {
@@ -144,7 +144,7 @@ class MockAuthLock
 
 class MockExpiration
 {
-    use Sources\TExpiration;
+    use Traits\TExpiration;
 
     public function __construct(int $changeInterval, int $changeNoticeBefore)
     {
