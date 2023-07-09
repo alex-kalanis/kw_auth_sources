@@ -18,7 +18,7 @@ use kalanis\kw_mapper\Records\ASimpleRecord;
  * @property string $authorId
  * @property string $parents
  * @property int $status
- * @property array<string, string|int|float|bool> $extra
+ * @property array<string|int, string|int|float|bool> $extra
  * @property UsersRecord[] $authors
  * @property UsersRecord[] $members
  * @codeCoverageIgnore remote source

@@ -135,7 +135,7 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
             $this->transformFromStringToInt(strval($line[static::PW_STATUS])),
             strval($line[static::PW_DISPLAY]),
             strval($line[static::PW_DIR]),
-            $this->extraParser->expand($line[static::PW_EXTRA])
+            $this->extraParser->expand(strval($line[static::PW_EXTRA]))
         );
         return $user;
     }

@@ -34,7 +34,7 @@ trait TLines
      */
     public function implosion(array $input): string
     {
-        return $this->compactName($input + [''], IFile::SEPARATOR);
+        return $this->compactName(array_map('strval', $input + ['']), IFile::SEPARATOR);
     }
 
     /**

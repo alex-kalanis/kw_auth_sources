@@ -20,7 +20,7 @@ use kalanis\kw_mapper\Records\ASimpleRecord;
  * @property string $display
  * @property string $cert
  * @property string $salt
- * @property array<string, string|int|float|bool> $extra
+ * @property array<string|int, string|int|float|bool> $extra
  * @property GroupsRecord[] $groups
  * @codeCoverageIgnore remote source
  * Mainly seen as example, not working thing due necessity of knowing database structure

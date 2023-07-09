@@ -28,7 +28,7 @@ interface IUser
      * @param int|null $authStatus
      * @param string|null $displayName
      * @param string|null $dir
-     * @param array<string, string|int|float|bool>|null $extra
+     * @param array<string|int, string|int|float|bool>|null $extra
      */
     public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir, ?array $extra = []): void;
 
@@ -76,7 +76,7 @@ interface IUser
 
     /**
      * Extra data about user
-     * @return array<string, string|int|float|bool>
+     * @return array<string|int, string|int|float|bool>
      */
     public function getExtra(): array;
 }

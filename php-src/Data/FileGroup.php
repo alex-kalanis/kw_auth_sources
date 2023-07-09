@@ -24,7 +24,7 @@ class FileGroup implements IGroup
     protected $status = 0;
     /** @var string[] */
     protected $parents = [];
-    /** @var array<string, string|int|float|bool> */
+    /** @var array<string|int, string|int|float|bool> */
     protected $extra = [];
 
     public function setGroupData(?string $id, ?string $name, ?string $desc, ?string $authorId, ?int $status, ?array $parents = [], ?array $extra = []): void

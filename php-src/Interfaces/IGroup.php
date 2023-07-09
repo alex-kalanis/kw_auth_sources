@@ -18,7 +18,7 @@ interface IGroup
      * @param string|null $authorId
      * @param int|null $status
      * @param string[]|null $parents
-     * @param array<string, string|int|float|bool>|null $extra
+     * @param array<string|int, string|int|float|bool>|null $extra
      */
     public function setGroupData(?string $id, ?string $name, ?string $desc, ?string $authorId, ?int $status, ?array $parents = [], ?array $extra = []): void;
 
@@ -60,7 +60,7 @@ interface IGroup
 
     /**
      * Extra data about group
-     * @return array<string, string|int|float|bool>
+     * @return array<string|int, string|int|float|bool>
      */
     public function getGroupExtra(): array;
 }
