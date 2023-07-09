@@ -39,8 +39,8 @@ class KwOrig implements IHashes
 
     /**
      * @param string $input
-     * @return string
      * @throws AuthSourcesException
+     * @return string
      */
     protected function hashPassword(string $input): string
     {
@@ -63,8 +63,8 @@ class KwOrig implements IHashes
 
     /**
      * @param string $word
-     * @return string
      * @throws AuthSourcesException
+     * @return string
      */
     private function makeHash(string $word): string
     {

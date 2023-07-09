@@ -168,9 +168,9 @@ class Groups implements Interfaces\IWorkGroups
 
     /**
      * @param Interfaces\IGroup $group
-     * @return bool
      * @throws LockException
      * @throws AuthSourcesException
+     * @return bool
      */
     public function updateGroup(Interfaces\IGroup $group): bool
     {
@@ -206,9 +206,9 @@ class Groups implements Interfaces\IWorkGroups
 
     /**
      * @param string $groupId
-     * @return bool
      * @throws LockException
      * @throws AuthSourcesException
+     * @return bool
      */
     public function deleteGroup(string $groupId): bool
     {

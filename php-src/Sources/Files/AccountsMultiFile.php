@@ -470,8 +470,8 @@ class AccountsMultiFile implements Interfaces\IAuthCert, Interfaces\IWorkAccount
     }
 
     /**
+     * @throws AuthSourcesException
      * @return array<int, array<int, string|int>>
-     *@throws AuthSourcesException
      */
     protected function openShadow(): array
     {

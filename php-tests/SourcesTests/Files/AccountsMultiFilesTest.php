@@ -35,6 +35,11 @@ class AccountsMultiFilesTest extends AFilesTest
         $user = $lib->getDataOnly('manager');
         $this->assertNotEmpty($user);
         $this->assertEquals('Manage', $user->getDisplayName());
+        $this->assertEquals([
+            'hint' => 'Uncut',
+            'age' => 39,
+            'powers' => ['foo', 'bar', 'baz',]
+        ], $user->getExtra());
     }
 
     /**

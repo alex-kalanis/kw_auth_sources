@@ -29,7 +29,7 @@ abstract class AFilesTest extends CommonTestClass
         return new Files\Groups(
             $this->getStoragesFullFiles(),
             $this->fullFilesSources(),
-            new ExtraParsers\Serialize(),
+            new ExtraParsers\Json(),
             $this->getLockPath(),
             $this->sourcePath
         );
@@ -46,7 +46,7 @@ abstract class AFilesTest extends CommonTestClass
             $this->getStoragesFullFiles(),
             new MockHashes(),
             new Always(),
-            new ExtraParsers\Serialize(),
+            new ExtraParsers\Json(),
             $this->getLockPath(),
             $this->sourcePath
         );
@@ -57,7 +57,7 @@ abstract class AFilesTest extends CommonTestClass
         return new XStorage([
             'data' . DIRECTORY_SEPARATOR . IFile::PASS_FILE
             => 'owner:1000:0:1:1:Owner:/data/::' . "\r\n"
-                . 'manager:1001:1:2:1:Manage:/data/::' . "\r\n"
+                . 'manager:1001:1:2:1:Manage:/data/:{"hint"\:"Uncut","age"\:39,"powers"\:["foo","bar","baz"]}:' . "\r\n"
                 . '# commented out' . "\r\n"
                 . 'worker:1002:1:3:1:Worker:/data/::' . "\r\n"
             // last line is intentionally empty one
@@ -71,7 +71,7 @@ abstract class AFilesTest extends CommonTestClass
             ,
             'data' . DIRECTORY_SEPARATOR . IFile::GROUP_FILE
             => '0:root:1000:Maintainers:1::' . "\r\n"
-                . '1:admin:1000:Administrators:1::' . "\r\n"
+                . '1:admin:1000:Administrators:1:{"hint"\:"Sssh","age"\:39,"powers"\:["foo","bar","baz"]}:' . "\r\n"
                 . '# commented out' . "\r\n"
                 . '2:user:1000:All users:1::' . "\r\n"
             // last line is intentionally empty one
@@ -89,7 +89,7 @@ abstract class AFilesTest extends CommonTestClass
             $this->getStoragesPartial(),
             new MockHashes(),
             new Always(),
-            new ExtraParsers\Serialize(),
+            new ExtraParsers\Json(),
             $this->getLockPath(),
             $this->sourcePath
         );
@@ -99,10 +99,10 @@ abstract class AFilesTest extends CommonTestClass
     {
         return new XStorage([
             'data' . DIRECTORY_SEPARATOR . IFile::PASS_FILE
-            => 'owner:1000:0:1:1:Owner:/data/:' . "\r\n"
-                . 'manager:1001:1:2:1:Manage:/data/:' . "\r\n"
+            => 'owner:1000:0:1:1:Owner:/data/::' . "\r\n"
+                . 'manager:1001:1:2:1:Manage:/data/:{"hint"\:"Uncut","age"\:39,"powers"\:["foo","bar","baz"]}:' . "\r\n"
                 . '# commented out' . "\r\n"
-                . 'worker:1002:1:3:1:Worker:/data/:' . "\r\n"
+                . 'worker:1002:1:3:1:Worker:/data/::' . "\r\n"
             // last line is intentionally empty one
         ]);
     }
@@ -128,10 +128,10 @@ abstract class AFilesTest extends CommonTestClass
     {
         return new XStorage([
             'data' . DIRECTORY_SEPARATOR . '.passcomb'
-            => '1000:owner:$2y$10$6-bucFamnK5BTGbojaWw3!HzzHOlUNnN6PF3Y9qHQIdE8FmQKv/eq:0:1:1:Owner:/data/:' . "\r\n"
-                . '1001:manager:$2y$10$G1Fo0udxqekABHkzUQubfuD8AjgD/5O9F9v3E0qYG2TI0BfZAkyz2:1:2:1:Manage:/data/:' . "\r\n"
+            => '1000:owner:$2y$10$6-bucFamnK5BTGbojaWw3!HzzHOlUNnN6PF3Y9qHQIdE8FmQKv/eq:0:1:1:Owner:/data/::' . "\r\n"
+                . '1001:manager:$2y$10$G1Fo0udxqekABHkzUQubfuD8AjgD/5O9F9v3E0qYG2TI0BfZAkyz2:1:2:1:Manage:/data/:a\:3\:{s\:4\:"hint";s\:5\:"Uncut";s\:3\:"age";i\:39;s\:6\:"powers";a\:3\:{i\:0;s\:3\:"foo";i\:1;s\:3\:"bar";i\:2;s\:3\:"baz";}}:' . "\r\n"
                 . '# commented out' . "\r\n"
-                . '1002:worker:$2y$10$6.bucFamnK5BTGbojaWw3.HpzHOlQUnN6PF3Y9qHQIdE8FmQKv/eq:1:3:1:Worker:/data/:' . "\r\n"
+                . '1002:worker:$2y$10$6.bucFamnK5BTGbojaWw3.HpzHOlQUnN6PF3Y9qHQIdE8FmQKv/eq:1:3:1:Worker:/data/::' . "\r\n"
             // last line is intentionally empty one
         ]);
     }

@@ -122,8 +122,8 @@ class AccountsDatabase implements Interfaces\IAuthCert, Interfaces\IWorkAccounts
     }
 
     /**
-     * @return Database\UsersRecord[]
      * @throws MapperException
+     * @return Database\UsersRecord[]
      */
     public function readAccounts(): array
     {
