@@ -17,7 +17,7 @@
         "php": ">=7.2.0"
     },
     "require-dev": {
-        "ext-openssl": "*",
+        "ext-json": "*",
         "alex-kalanis/kw_mapper": ">=2.0",
         "alex-kalanis/kw_storage": ">=3.3",
         "alex-kalanis/kw_files": ">=3.2",

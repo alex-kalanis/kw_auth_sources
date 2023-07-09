@@ -55,4 +55,13 @@ class Volume extends AStorage
         }
         // @codeCoverageIgnoreEnd
     }
+
+    /**
+     * @return string
+     * @codeCoverageIgnore translation
+     */
+    protected function noDirectoryDelimiterSet(): string
+    {
+        return $this->getAusLang()->kauNoDelimiterSet();
+    }
 }

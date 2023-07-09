@@ -26,7 +26,7 @@ interface IAuth
     /**
      * Check if credentials are okay
      * @param string $userName
-     * @param string[] $params
+     * @param array<string|int, string|int|float|bool> $params
      * @throws AuthSourcesException
      * @throws LockException
      * @return IUser|null

@@ -27,7 +27,7 @@ class FileUser implements IUser
     protected $displayName = '';
     /** @var string */
     protected $dir = '';
-    /** @var array<string, string|int|float|bool> */
+    /** @var array<string|int, string|int|float|bool> */
     protected $extra = [];
 
     public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir, ?array $extra = []): void

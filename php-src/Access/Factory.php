@@ -4,6 +4,7 @@ namespace kalanis\kw_auth_sources\Access;
 
 
 use kalanis\kw_auth_sources\AuthSourcesException;
+use kalanis\kw_auth_sources\ExtraParsers;
 use kalanis\kw_auth_sources\Hashes;
 use kalanis\kw_auth_sources\Interfaces;
 use kalanis\kw_auth_sources\Statuses;
@@ -50,6 +51,7 @@ class Factory
                     $storage,
                     new Hashes\CoreLib(),
                     new Statuses\Always(),
+                    new ExtraParsers\Serialize(),
                     $lock,
                     [],
                     $this->getAusLang()
@@ -57,7 +59,14 @@ class Factory
                 return new CompositeSources(
                     $accounts,
                     $accounts,
-                    new Sources\Files\Groups($storage, $accounts, $lock, [], $this->getAusLang()),
+                    new Sources\Files\Groups(
+                        $storage,
+                        $accounts,
+                        new ExtraParsers\Serialize(),
+                        $lock,
+                        [],
+                        $this->getAusLang()
+                    ),
                     new Sources\Classes()
                 );
             }
@@ -68,6 +77,7 @@ class Factory
                     $storage,
                     new Hashes\CoreLib(),
                     new Statuses\Always(),
+                    new ExtraParsers\Serialize(),
                     $lock,
                     [],
                     $this->getAusLang()
@@ -75,7 +85,14 @@ class Factory
                 return new CompositeSources(
                     $accounts,
                     $accounts,
-                    new Sources\Files\Groups($storage, $accounts, $lock, [], $this->getAusLang()),
+                    new Sources\Files\Groups(
+                        $storage,
+                        $accounts,
+                        new ExtraParsers\Serialize(),
+                        $lock,
+                        [],
+                        $this->getAusLang()
+                    ),
                     new Sources\Classes()
                 );
             }
@@ -104,6 +121,7 @@ class Factory
                     $storage,
                     new Hashes\CoreLib(),
                     new Statuses\Always(),
+                    new ExtraParsers\Serialize(),
                     $lock,
                     [],
                     $this->getAusLang()
@@ -111,7 +129,14 @@ class Factory
                 return new CompositeSources(
                     $accounts,
                     $accounts,
-                    new Sources\Files\Groups($storage, $accounts, $lock, [], $this->getAusLang()),
+                    new Sources\Files\Groups(
+                        $storage,
+                        $accounts,
+                        new ExtraParsers\Serialize(),
+                        $lock,
+                        [],
+                        $this->getAusLang()
+                    ),
                     new Sources\Classes()
                 );
             }
@@ -131,12 +156,13 @@ class Factory
             $hash = $this->whichHash($params);
             $status = $this->whichStatus($params);
             $lock = $this->whichLocks($params);
-            $accounts = $this->getAccounts($params, $storage, $hash, $status, $lock);
-            $auth = ($accounts instanceof Interfaces\IAuth) ? $accounts : $this->getAuth($params, $storage, $hash, $status, $lock);
+            $extraParser = $this->whichParser($params);
+            $accounts = $this->getAccounts($params, $storage, $hash, $status, $extraParser, $lock);
+            $auth = ($accounts instanceof Interfaces\IAuth) ? $accounts : $this->getAuth($params, $storage, $hash, $status, $extraParser, $lock);
             return new CompositeSources(
                 $auth,
                 $accounts,
-                $this->getGroups($params, $storage, $accounts, $lock),
+                $this->getGroups($params, $storage, $accounts, $extraParser, $lock),
                 $this->getClasses($params)
             );
         }
@@ -217,6 +243,39 @@ class Factory
 
     /**
      * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
+     * @return Interfaces\IExtraParser
+     */
+    protected function whichParser(array $params): Interfaces\IExtraParser
+    {
+        if (isset($params['parser'])) {
+            if (is_object($params['parser']) && $params['parser'] instanceof Interfaces\IExtraParser) {
+                return $params['parser'];
+            }
+            if (is_string($params['parser'])) {
+                if ('php' == $params['parser']) {
+                    return new ExtraParsers\Serialize();
+                }
+                if ('serial' == $params['parser']) {
+                    return new ExtraParsers\Serialize();
+                }
+                if ('none' == $params['parser']) {
+                    return new ExtraParsers\None();
+                }
+                return new ExtraParsers\Json();
+            }
+            if (is_numeric($params['parser'])) {
+                return boolval(intval($params['parser'])) ? new ExtraParsers\Serialize() : new ExtraParsers\Json();
+            }
+            if (is_bool($params['parser'])) {
+                return $params['parser'] ? new ExtraParsers\Serialize() : new ExtraParsers\Json();
+            }
+        }
+        return new ExtraParsers\None();
+//        throw new AuthSourcesException($this->getAusLang()->kauCombinationUnavailable());
+    }
+
+    /**
+     * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
      * @throws AuthSourcesException
      * @return ILock
      */
@@ -271,6 +330,7 @@ class Factory
      * @param Sources\Files\Storages\AStorage $storage
      * @param Interfaces\IHashes $hash
      * @param Interfaces\IStatus $status
+     * @param Interfaces\IExtraParser $parser
      * @param ILock $lock
      * @return Interfaces\IAuth
      */
@@ -279,6 +339,7 @@ class Factory
         Sources\Files\Storages\AStorage $storage,
         Interfaces\IHashes $hash,
         Interfaces\IStatus $status,
+        Interfaces\IExtraParser $parser,
         ILock $lock
     ): Interfaces\IAuth
     {
@@ -286,9 +347,9 @@ class Factory
             return $params['auth'];
         }
         if (isset($params['single_file'])) {
-            return new Sources\Files\AccountsSingleFile($storage, $hash, $status, $lock, $this->clearedPath($params), $this->getAusLang());
+            return new Sources\Files\AccountsSingleFile($storage, $hash, $status, $parser, $lock, $this->clearedPath($params), $this->getAusLang());
         }
-        return new Sources\Files\AccountsMultiFile($storage, $hash, $status, $lock, $this->clearedPath($params), $this->getAusLang());
+        return new Sources\Files\AccountsMultiFile($storage, $hash, $status, $parser, $lock, $this->clearedPath($params), $this->getAusLang());
     }
 
     /**
@@ -296,6 +357,7 @@ class Factory
      * @param Sources\Files\Storages\AStorage $storage
      * @param Interfaces\IHashes $hash
      * @param Interfaces\IStatus $status
+     * @param Interfaces\IExtraParser $parser
      * @param ILock $lock
      * @return Interfaces\IWorkAccounts
      */
@@ -304,6 +366,7 @@ class Factory
         Sources\Files\Storages\AStorage $storage,
         Interfaces\IHashes $hash,
         Interfaces\IStatus $status,
+        Interfaces\IExtraParser $parser,
         ILock $lock
     ): Interfaces\IWorkAccounts
     {
@@ -311,15 +374,16 @@ class Factory
             return $params['accounts'];
         }
         if (isset($params['single_file'])) {
-            return new Sources\Files\AccountsSingleFile($storage, $hash, $status, $lock, $this->clearedPath($params), $this->getAusLang());
+            return new Sources\Files\AccountsSingleFile($storage, $hash, $status, $parser, $lock, $this->clearedPath($params), $this->getAusLang());
         }
-        return new Sources\Files\AccountsMultiFile($storage, $hash, $status, $lock, $this->clearedPath($params), $this->getAusLang());
+        return new Sources\Files\AccountsMultiFile($storage, $hash, $status, $parser, $lock, $this->clearedPath($params), $this->getAusLang());
     }
 
     /**
      * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
      * @param Sources\Files\Storages\AStorage $storage
      * @param Interfaces\IWorkAccounts $accounts
+     * @param Interfaces\IExtraParser $parser
      * @param ILock $lock
      * @return Interfaces\IWorkGroups
      */
@@ -327,13 +391,14 @@ class Factory
         array $params,
         Sources\Files\Storages\AStorage $storage,
         Interfaces\IWorkAccounts $accounts,
+        Interfaces\IExtraParser $parser,
         ILock $lock
     ): Interfaces\IWorkGroups
     {
         if (isset($params['groups']) && ($params['groups'] instanceof Interfaces\IWorkGroups)) {
             return $params['groups'];
         }
-        return new Sources\Files\Groups($storage, $accounts, $lock, $this->clearedPath($params), $this->getAusLang());
+        return new Sources\Files\Groups($storage, $accounts, $parser, $lock, $this->clearedPath($params), $this->getAusLang());
     }
 
     /**

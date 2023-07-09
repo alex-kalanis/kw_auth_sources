@@ -35,8 +35,8 @@ class AuthLdap implements IAuth
             }
             /** @var Ldap\LdapMapper $mapper */
             return ($mapper->authorize([
-                'user' => $userName,
-                'password' => $params['password'] ?: ''
+                'user' => strval($userName),
+                'password' => strval($params['password'] ?: '')
             ]))
                 ? $this->getDataOnly($userName)
                 : null ;

@@ -4,6 +4,8 @@ namespace kalanis\kw_auth_sources\Sources;
 
 
 use kalanis\kw_auth_sources\Interfaces\IFile;
+use kalanis\kw_paths\Extras\TPathTransform;
+use kalanis\kw_paths\PathsException;
 
 
 /**
@@ -13,22 +15,26 @@ use kalanis\kw_auth_sources\Interfaces\IFile;
  */
 trait TLines
 {
+    use TPathTransform;
+
     /**
      * @param string $input
+     * @throws PathsException
      * @return array<int, string>
      */
     public function explosion(string $input): array
     {
-        return explode(IFile::SEPARATOR, $input);
+        return $this->expandName($input,IFile::SEPARATOR);
     }
 
     /**
      * @param array<int, string|int|float> $input
+     * @throws PathsException
      * @return string
      */
     public function implosion(array $input): string
     {
-        return implode(IFile::SEPARATOR, $input + ['']);
+        return $this->compactName(array_map('strval', $input + ['']), IFile::SEPARATOR);
     }
 
     /**

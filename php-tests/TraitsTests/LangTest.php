@@ -81,4 +81,9 @@ class XTrans implements IKAusTranslations
     {
         return 'mock';
     }
+
+    public function kauNoDelimiterSet(): string
+    {
+        return 'mock';
+    }
 }

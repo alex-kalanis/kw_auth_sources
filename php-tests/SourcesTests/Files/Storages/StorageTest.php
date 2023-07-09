@@ -59,10 +59,10 @@ class StorageTest extends CommonTestClass
         $storage = new Storage(new Key\DefaultKey(), new Target\Memory());
         $storage->write('data', IProcessNodes::STORAGE_NODE_KEY);
         $storage->write('data' . DIRECTORY_SEPARATOR . 'something.data',
-            'owner:1000:0:1:1:Owner:/data/:' . "\r\n"
-            . 'manager:1001:1:2:1:Manage:/data/:' . "\r\n"
+            'owner:1000:0:1:1:Owner:/data/::' . "\r\n"
+            . 'manager:1001:1:2:1:Manage:/data/::' . "\r\n"
             . '# commented out' . "\r\n"
-            . 'worker:1002:1:3:1:Worker:/data/:' . "\r\n"
+            . 'worker:1002:1:3:1:Worker:/data/::' . "\r\n"
         // last line is intentionally empty one
         );
         return new Sources\Files\Storages\Storage($storage);

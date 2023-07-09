@@ -36,7 +36,7 @@ class CompositeSources implements Interfaces\IAuthCert, Interfaces\IWorkAccounts
 
     public function authenticate(string $userName, array $params = []): ?Interfaces\IUser
     {
-        return $this->auth->authenticate($userName);
+        return $this->auth->authenticate($userName, $params);
     }
 
     public function updateCertKeys(string $userName, ?string $certKey, ?string $certSalt): bool
