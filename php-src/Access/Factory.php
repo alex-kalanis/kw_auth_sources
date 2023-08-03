@@ -16,7 +16,9 @@ use kalanis\kw_locks\Interfaces\IKLTranslations;
 use kalanis\kw_locks\Interfaces\ILock;
 use kalanis\kw_locks\LockException;
 use kalanis\kw_locks\Methods as lock_methods;
+use kalanis\kw_storage\Access as storage_access;
 use kalanis\kw_storage\Interfaces\IStorage;
+use kalanis\kw_storage\StorageException;
 
 
 /**
@@ -176,6 +178,13 @@ class Factory
      */
     protected function whichStorage(array $params): Sources\Files\Storages\AStorage
     {
+        $fileLang = null;
+        if (isset($params['storage_lang']) && ($params['storage_lang'] instanceof IFLTranslations)) {
+            $fileLang = $params['storage_lang'];
+        }
+        if (!$fileLang && (($localLang = $this->getAusLang()) instanceof IFLTranslations)) {
+            $fileLang = $localLang;
+        }
         if (isset($params['storage'])) {
             if (is_object($params['storage']) && ($params['storage'] instanceof Sources\Files\Storages\AStorage)) {
                 return $params['storage'];
@@ -184,14 +193,14 @@ class Factory
                 return new Sources\Files\Storages\Storage($params['storage'], $this->getAusLang());
             }
             if (is_object($params['storage']) && ($params['storage'] instanceof CompositeAdapter)) {
-                $storageLang = null;
-                if (isset($params['storage_lang']) && ($params['storage_lang'] instanceof IFLTranslations)) {
-                    $storageLang = $params['storage_lang'];
+                return new Sources\Files\Storages\Files($params['storage'], $this->getAusLang(), $fileLang);
+            }
+            if (is_array($params['storage'])) {
+                try {
+                    return new Sources\Files\Storages\Storage(storage_access\MultitonInstances::getInstance()->lookup($params['storage']), $this->getAusLang());
+                } catch (StorageException $ex) {
+                    throw new AuthSourcesException($ex->getMessage(), $ex->getCode(), $ex);
                 }
-                if (!$storageLang && (($localLang = $this->getAusLang()) instanceof IFLTranslations)) {
-                    $storageLang = $localLang;
-                }
-                return new Sources\Files\Storages\Files($params['storage'], $this->getAusLang(), $storageLang);
             }
             if (is_string($params['storage']) && ($pt = realpath($params['storage']))) {
                 return new Sources\Files\Storages\Volume($pt . DIRECTORY_SEPARATOR, $this->getAusLang());

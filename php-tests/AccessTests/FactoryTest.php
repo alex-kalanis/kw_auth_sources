@@ -81,6 +81,7 @@ class FactoryTest extends CommonTestClass
 
             [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'accounts' => new XMockAccount(), 'auth' => new XMockAuth(), 'parser' => 0]], // path as string, account as outside class, auth as outside class
             [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'accounts' => new XMockAccount(), 'single_file' => true, 'parser' => 0]], // path as string, account as outside class, auth in single file
+            [['storage' => ['storage_key' => 'data', 'storage_target' => 'mem'], 'status' => true, 'parser' => true, 'lock' => new \XFailedStorage(), 'lock_lang' => new XLockLang()]], // storage as array
         ];
     }
 
@@ -117,7 +118,7 @@ class FactoryTest extends CommonTestClass
             [['storage' => null]], // failed storage
             [['storage' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'status' => null]], // failed status
             [['storage' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'status' => 1, 'lock' => 123]], // failed lock
-//            [['storage' => new \XFailedStorage(), 'status' => true, 'lock' => new \XFailedStorage(), 'lock_lang' => new XLockLang()]], // still no parser
+            [['storage' => ['storage_key' => new \stdClass()], 'status' => true, 'lock' => new \XFailedStorage(), ]], // failed array - not storage
         ];
     }
 }
