@@ -4,7 +4,7 @@ namespace AccessTests;
 
 
 use CommonTestClass;
-use kalanis\kw_auth_sources\Access\CompositeSources;
+use kalanis\kw_auth_sources\Access;
 use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\Sources;
 use kalanis\kw_locks\LockException;
@@ -19,7 +19,7 @@ class CompositeTest extends CommonTestClass
     public function testBasic(): void
     {
         $acc = new Sources\Dummy\Accounts();
-        $lib = new CompositeSources($acc, $acc, new Sources\Dummy\Groups(), new Sources\Classes());
+        $lib = new Access\CompositeSources(new Access\SourcesAdapters\Direct($acc, $acc, new Sources\Dummy\Groups(), new Sources\Classes()));
         $this->assertInstanceOf(Sources\Dummy\Accounts::class, $lib->getAuth());
         $this->assertInstanceOf(Sources\Dummy\Accounts::class, $lib->getAccounts());
         $this->assertInstanceOf(Sources\Dummy\Groups::class, $lib->getGroups());
@@ -52,7 +52,7 @@ class CompositeTest extends CommonTestClass
     public function testCerts(): void
     {
         $acc = new Sources\Dummy\AccountsCerts();
-        $lib = new CompositeSources($acc, $acc, new Sources\Dummy\Groups(), new Sources\Classes());
+        $lib = new Access\CompositeSources(new Access\SourcesAdapters\Direct($acc, $acc, new Sources\Dummy\Groups(), new Sources\Classes()));
         $this->assertInstanceOf(Sources\Dummy\Accounts::class, $lib->getAuth());
         $this->assertInstanceOf(Sources\Dummy\AccountsCerts::class, $lib->getAccounts());
 

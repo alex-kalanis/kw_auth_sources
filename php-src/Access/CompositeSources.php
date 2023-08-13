@@ -12,121 +12,114 @@ use kalanis\kw_auth_sources\Interfaces;
  */
 class CompositeSources implements Interfaces\IAuthCert, Interfaces\IWorkAccounts, Interfaces\IWorkClasses, Interfaces\IWorkGroups
 {
-    /** @var Interfaces\IAuth */
-    protected $auth = null;
-    /** @var Interfaces\IWorkAccounts */
-    protected $accounts = null;
-    /** @var Interfaces\IWorkClasses */
-    protected $classes = null;
-    /** @var Interfaces\IWorkGroups */
-    protected $groups = null;
+    /** @var SourcesAdapters\AAdapter */
+    protected $adapter = null;
 
-    public function __construct(Interfaces\IAuth $auth, Interfaces\IWorkAccounts $accounts, Interfaces\IWorkGroups $groups, Interfaces\IWorkClasses $classes)
+    public function __construct(SourcesAdapters\AAdapter $adapter)
     {
-        $this->auth = $auth;
-        $this->accounts = $accounts;
-        $this->classes = $classes;
-        $this->groups = $groups;
+        $this->adapter = $adapter;
     }
 
     public function getDataOnly(string $userName): ?Interfaces\IUser
     {
-        return $this->auth->getDataOnly($userName);
+        return $this->adapter->getAuth()->getDataOnly($userName);
     }
 
     public function authenticate(string $userName, array $params = []): ?Interfaces\IUser
     {
-        return $this->auth->authenticate($userName, $params);
+        return $this->adapter->getAuth()->authenticate($userName, $params);
     }
 
     public function updateCertKeys(string $userName, ?string $certKey, ?string $certSalt): bool
     {
-        if ($this->auth instanceof Interfaces\IAuthCert) {
-            return $this->auth->updateCertKeys($userName, $certKey, $certSalt);
+        $auth = $this->adapter->getAuth();
+        if ($auth instanceof Interfaces\IAuthCert) {
+            return $auth->updateCertKeys($userName, $certKey, $certSalt);
         }
         return false;
     }
 
     public function getCertData(string $userName): ?Interfaces\IUserCert
     {
-        if ($this->auth instanceof Interfaces\IAuthCert) {
-            return $this->auth->getCertData($userName);
+        $auth = $this->adapter->getAuth();
+        if ($auth instanceof Interfaces\IAuthCert) {
+            return $auth->getCertData($userName);
         }
         return null;
     }
 
     public function createAccount(Interfaces\IUser $user, string $password): bool
     {
-        return $this->accounts->createAccount($user, $password);
+        return $this->adapter->getAccounts()->createAccount($user, $password);
     }
 
     public function readAccounts(): array
     {
-        return $this->accounts->readAccounts();
+        return $this->adapter->getAccounts()->readAccounts();
     }
 
     public function updateAccount(Interfaces\IUser $user): bool
     {
-        return $this->accounts->updateAccount($user);
+        return $this->adapter->getAccounts()->updateAccount($user);
     }
 
     public function updatePassword(string $userName, string $passWord): bool
     {
-        return $this->accounts->updatePassword($userName, $passWord);
+        return $this->adapter->getAccounts()->updatePassword($userName, $passWord);
     }
 
     public function deleteAccount(string $userName): bool
     {
-        return $this->accounts->deleteAccount($userName);
+        return $this->adapter->getAccounts()->deleteAccount($userName);
     }
 
     public function readClasses(): array
     {
-        return $this->classes->readClasses();
+        return $this->adapter->getClasses()->readClasses();
     }
 
     public function createGroup(Interfaces\IGroup $group): bool
     {
-        return $this->groups->createGroup($group);
+        return $this->adapter->getGroups()->createGroup($group);
     }
 
     public function getGroupDataOnly(string $groupId): ?Interfaces\IGroup
     {
-        return $this->groups->getGroupDataOnly($groupId);
+        return $this->adapter->getGroups()->getGroupDataOnly($groupId);
     }
 
     public function readGroup(): array
     {
-        return $this->groups->readGroup();
+        return $this->adapter->getGroups()->readGroup();
     }
 
     public function updateGroup(Interfaces\IGroup $group): bool
     {
-        return $this->groups->updateGroup($group);
+        return $this->adapter->getGroups()->updateGroup($group);
     }
 
     public function deleteGroup(string $groupId): bool
     {
-        return $this->groups->deleteGroup($groupId);
+        return $this->adapter->getGroups()->deleteGroup($groupId);
     }
 
     public function getAuth(): Interfaces\IAuth
     {
-        return $this->auth;
+        return $this->adapter->getAuth();
     }
 
     public function getAccounts(): Interfaces\IWorkAccounts
     {
-        return $this->accounts;
+        return $this->adapter->getAccounts();
     }
 
     public function getClasses(): Interfaces\IWorkClasses
     {
-        return $this->classes;
+        return $this->adapter->getClasses();
     }
 
     public function getGroups(): Interfaces\IWorkGroups
     {
-        return $this->groups;
+        return $this->adapter->getGroups();
     }
 }

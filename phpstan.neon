@@ -51,3 +51,4 @@ parameters:
 		- '#Method kalanis\\kw_auth_sources\\ExtraParsers\\[a-zA-Z0-9]+\:\:expand#'
 		# usual strval/intval shit
 		- '#Parameter \#1 \$va[rl]u?e? of function [si][tn][rt]val expects bool\|float\|int\|resource\|string\|null#'
+	treatPhpDocTypesAsCertain: false

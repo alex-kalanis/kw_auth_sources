@@ -8,8 +8,7 @@ use kalanis\kw_auth_sources\Access;
 use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\ExtraParsers;
 use kalanis\kw_auth_sources\Interfaces;
-use kalanis\kw_auth_sources\Sources\Classes;
-use kalanis\kw_auth_sources\Sources\Files\Storages\AStorage;
+use kalanis\kw_auth_sources\Sources;
 use kalanis\kw_auth_sources\Statuses\Always;
 use kalanis\kw_auth_sources\Traits\TLang;
 use kalanis\kw_files\Access\Factory as files_factory;
@@ -75,13 +74,19 @@ class FactoryTest extends CommonTestClass
 
             [['storage' => new \XFailedStorage(), 'status' => true, 'parser' => true, 'lock' => new \XFailedStorage(), 'lock_lang' => new XLockLang()]], // IStorage, bool status check, lock source, lock lang extra
             [['storage' => (new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..'), 'status' => true, 'parser' => 'none', 'lock' => (new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..')]], // CompositeAdapter, bool status check, lock source
-            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'classes' => new Classes(), 'parser' => 'any']], // path as string, classes as outside class
+            [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'classes' => new Sources\Classes(), 'parser' => 'any']], // path as string, classes as outside class
             [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'groups' => new XMockGroups(), 'parser' => 0]], // path as string, groups as outside class
             [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'accounts' => new XMockAccount(), 'parser' => 0]], // path as string, account as outside class
 
             [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'accounts' => new XMockAccount(), 'auth' => new XMockAuth(), 'parser' => 0]], // path as string, account as outside class, auth as outside class
             [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data', 'accounts' => new XMockAccount(), 'single_file' => true, 'parser' => 0]], // path as string, account as outside class, auth in single file
             [['storage' => ['storage_key' => 'data', 'storage_target' => 'mem'], 'status' => true, 'parser' => true, 'lock' => new \XFailedStorage(), 'lock_lang' => new XLockLang()]], // storage as array
+            [new Access\SourcesAdapters\Direct(
+                new Sources\Dummy\Accounts(),
+                new Sources\Dummy\Accounts(),
+                new Sources\Dummy\Groups(),
+                new Sources\Classes()
+            )], // from composite element
         ];
     }
 
@@ -124,7 +129,7 @@ class FactoryTest extends CommonTestClass
 }
 
 
-class XLockedStorage extends AStorage implements ILock
+class XLockedStorage extends Sources\Files\Storages\AStorage implements ILock
 {
     use TLang;
 

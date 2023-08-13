@@ -46,6 +46,9 @@ class Factory
             if ($params instanceof CompositeSources) {
                 return $params;
             }
+            if ($params instanceof SourcesAdapters\AAdapter) {
+                return $this->getCompositeSourceInstance($params);
+            }
             if ($params instanceof IStorage) {
                 $storage = new Sources\Files\Storages\Storage($params, $this->getAusLang());
                 $lock = new lock_methods\StorageLock($params);
@@ -58,7 +61,7 @@ class Factory
                     [],
                     $this->getAusLang()
                 );
-                return new CompositeSources(
+                return $this->getCompositeSourceInstance(new SourcesAdapters\Direct(
                     $accounts,
                     $accounts,
                     new Sources\Files\Groups(
@@ -70,7 +73,7 @@ class Factory
                         $this->getAusLang()
                     ),
                     new Sources\Classes()
-                );
+                ));
             }
             if ($params instanceof CompositeAdapter) {
                 $storage = new Sources\Files\Storages\Files($params, $this->getAusLang());
@@ -84,7 +87,7 @@ class Factory
                     [],
                     $this->getAusLang()
                 );
-                return new CompositeSources(
+                return $this->getCompositeSourceInstance(new SourcesAdapters\Direct(
                     $accounts,
                     $accounts,
                     new Sources\Files\Groups(
@@ -96,25 +99,25 @@ class Factory
                         $this->getAusLang()
                     ),
                     new Sources\Classes()
-                );
+                ));
             }
         } elseif (is_string($params)) {
             if ('ldap' == $params) {
-                return new CompositeSources(
+                return $this->getCompositeSourceInstance(new SourcesAdapters\Direct(
                     new Sources\Mapper\AuthLdap(),
                     new Sources\Dummy\Accounts(),
                     new Sources\Dummy\Groups(),
                     new Sources\Classes()
-                );
+                ));
             }
             if ('db' == $params) {
                 $auth = new Sources\Mapper\AccountsDatabase(new Hashes\CoreLib());
-                return new CompositeSources(
+                return $this->getCompositeSourceInstance(new SourcesAdapters\Direct(
                     $auth,
                     $auth,
                     new Sources\Mapper\GroupsDatabase(),
                     new Sources\Classes()
-                );
+                ));
             }
             if (($dir = realpath($params)) && is_dir($params)) {
                 $storage = new Sources\Files\Storages\Volume($dir . DIRECTORY_SEPARATOR, $this->getAusLang());
@@ -128,7 +131,7 @@ class Factory
                     [],
                     $this->getAusLang()
                 );
-                return new CompositeSources(
+                return $this->getCompositeSourceInstance(new SourcesAdapters\Direct(
                     $accounts,
                     $accounts,
                     new Sources\Files\Groups(
@@ -140,7 +143,7 @@ class Factory
                         $this->getAusLang()
                     ),
                     new Sources\Classes()
-                );
+                ));
             }
         } elseif (is_array($params)) {
             // now it became a bit complicated...
@@ -161,14 +164,19 @@ class Factory
             $extraParser = $this->whichParser($params);
             $accounts = $this->getAccounts($params, $storage, $hash, $status, $extraParser, $lock);
             $auth = ($accounts instanceof Interfaces\IAuth) ? $accounts : $this->getAuth($params, $storage, $hash, $status, $extraParser, $lock);
-            return new CompositeSources(
+            return $this->getCompositeSourceInstance(new SourcesAdapters\Direct(
                 $auth,
                 $accounts,
                 $this->getGroups($params, $storage, $accounts, $extraParser, $lock),
                 $this->getClasses($params)
-            );
+            ));
         }
         throw new AuthSourcesException($this->getAusLang()->kauCombinationUnavailable());
+    }
+
+    protected function getCompositeSourceInstance(SourcesAdapters\AAdapter $adapter): CompositeSources
+    {
+        return new CompositeSources($adapter);
     }
 
     /**
