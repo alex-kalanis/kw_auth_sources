@@ -5,6 +5,7 @@ namespace kalanis\kw_auth_sources\Sources\Mapper;
 
 use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\Interfaces;
+use kalanis\kw_auth_sources\Traits\TLang;
 use kalanis\kw_auth_sources\Traits\TSeparated;
 use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Search\Search;
@@ -19,6 +20,7 @@ use kalanis\kw_mapper\Search\Search;
  */
 class AccountsDatabase implements Interfaces\IAuthCert, Interfaces\IWorkAccounts
 {
+    use TLang;
     use TSeparated;
 
     /** @var Interfaces\IHashes */
@@ -26,8 +28,9 @@ class AccountsDatabase implements Interfaces\IAuthCert, Interfaces\IWorkAccounts
     /** @var Database\UsersRecord */
     protected $usersRecord = null;
 
-    public function __construct(Interfaces\IHashes $mode)
+    public function __construct(Interfaces\IHashes $mode, ?Interfaces\IKAusTranslations $lang = null)
     {
+        $this->setAusLang($lang);
         $this->passMode = $mode;
         $this->usersRecord = new Database\UsersRecord();
     }
@@ -41,6 +44,9 @@ class AccountsDatabase implements Interfaces\IAuthCert, Interfaces\IWorkAccounts
      */
     public function authenticate(string $userName, array $params = []): ?Interfaces\IUser
     {
+        if (!isset($params['password'])) {
+            throw new AuthSourcesException($this->getAusLang()->kauPassMustBeSet());
+        }
         $record = $this->getByLogin($userName);
         if (empty($record)) {
             return null;
