@@ -110,6 +110,7 @@ class Accounts implements Interfaces\IAuth, Interfaces\IWorkAccounts
         $user = $this->getDataOnly($userName);
         if ($user && isset($this->pass[$user->getAuthId()])) {
             $this->pass[$user->getAuthId()] = $this->mode->createHash($passWord);
+            return true;
         }
         return false;
     }

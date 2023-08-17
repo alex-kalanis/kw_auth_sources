@@ -160,7 +160,7 @@ class AccountsTest extends AMemoryTest
         $this->assertEquals(2, $saved->getClass());
 
         // update password
-        $lib->updatePassword($user->getAuthName(), 'another pass');
+        $this->assertTrue($lib->updatePassword($user->getAuthName(), 'another pass'));
         // check login
         $this->assertEmpty($lib->authenticate($user->getAuthName(), ['password' => 'here to set']));
         $this->assertNotEmpty($lib->authenticate($user->getAuthName(), ['password' => 'another pass']));
