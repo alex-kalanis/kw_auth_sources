@@ -4,6 +4,7 @@ namespace AccessTests;
 
 
 use CommonTestClass;
+use kalanis\kw_accounts\Interfaces as acc_interfaces;
 use kalanis\kw_auth_sources\Access;
 use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\ExtraParsers;
@@ -415,14 +416,14 @@ class XAuLang extends XFlLang implements Interfaces\IKAusTranslations, IKLTransl
 }
 
 
-class XMockGroups implements Interfaces\IWorkGroups
+class XMockGroups implements acc_interfaces\IProcessGroups
 {
-    public function createGroup(Interfaces\IGroup $group): bool
+    public function createGroup(acc_interfaces\IGroup $group): bool
     {
         return false;
     }
 
-    public function getGroupDataOnly(string $groupId): ?Interfaces\IGroup
+    public function getGroupDataOnly(string $groupId): ?acc_interfaces\IGroup
     {
         return null;
     }
@@ -432,7 +433,7 @@ class XMockGroups implements Interfaces\IWorkGroups
         return [];
     }
 
-    public function updateGroup(Interfaces\IGroup $group): bool
+    public function updateGroup(acc_interfaces\IGroup $group): bool
     {
         return false;
     }
@@ -444,9 +445,9 @@ class XMockGroups implements Interfaces\IWorkGroups
 }
 
 
-class XMockAccount implements Interfaces\IWorkAccounts
+class XMockAccount implements acc_interfaces\IProcessAccounts
 {
-    public function createAccount(Interfaces\IUser $user, string $password): bool
+    public function createAccount(acc_interfaces\IUser $user, string $password): bool
     {
         return false;
     }
@@ -456,7 +457,7 @@ class XMockAccount implements Interfaces\IWorkAccounts
         return [];
     }
 
-    public function updateAccount(Interfaces\IUser $user): bool
+    public function updateAccount(acc_interfaces\IUser $user): bool
     {
         return false;
     }
@@ -473,14 +474,14 @@ class XMockAccount implements Interfaces\IWorkAccounts
 }
 
 
-class XMockAuth implements Interfaces\IAuth
+class XMockAuth implements acc_interfaces\IAuth
 {
-    public function getDataOnly(string $userName): ?Interfaces\IUser
+    public function getDataOnly(string $userName): ?acc_interfaces\IUser
     {
         return null;
     }
 
-    public function authenticate(string $userName, array $params = []): ?Interfaces\IUser
+    public function authenticate(string $userName, array $params = []): ?acc_interfaces\IUser
     {
         return null;
     }

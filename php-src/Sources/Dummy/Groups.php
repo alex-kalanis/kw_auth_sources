@@ -3,7 +3,7 @@
 namespace kalanis\kw_auth_sources\Sources\Dummy;
 
 
-use kalanis\kw_auth_sources\Interfaces;
+use kalanis\kw_accounts\Interfaces;
 
 
 /**
@@ -11,9 +11,8 @@ use kalanis\kw_auth_sources\Interfaces;
  * @package kalanis\kw_auth_sources\Sources\Dummy
  * Work with groups of users - but not with this one
  */
-class Groups implements Interfaces\IWorkGroups
+class Groups implements Interfaces\IProcessGroups
 {
-
     public function createGroup(Interfaces\IGroup $group): bool
     {
         return false;

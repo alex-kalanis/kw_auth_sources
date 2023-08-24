@@ -4,8 +4,6 @@ namespace SourcesTests\Memory;
 
 
 use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Data\FileUser;
-use kalanis\kw_auth_sources\Interfaces\IUser;
 use kalanis\kw_locks\LockException;
 
 

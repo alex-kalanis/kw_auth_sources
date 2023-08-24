@@ -3,7 +3,7 @@
 namespace kalanis\kw_auth_sources\Access\SourcesAdapters;
 
 
-use kalanis\kw_auth_sources\Interfaces;
+use kalanis\kw_accounts\Interfaces;
 
 
 /**
@@ -13,7 +13,7 @@ use kalanis\kw_auth_sources\Interfaces;
  */
 class Direct extends AAdapter
 {
-    public function __construct(Interfaces\IAuth $auth, Interfaces\IWorkAccounts $accounts, Interfaces\IWorkGroups $groups, Interfaces\IWorkClasses $classes)
+    public function __construct(Interfaces\IAuth $auth, Interfaces\IProcessAccounts $accounts, Interfaces\IProcessGroups$groups, Interfaces\IProcessClasses $classes)
     {
         $this->auth = $auth;
         $this->accounts = $accounts;

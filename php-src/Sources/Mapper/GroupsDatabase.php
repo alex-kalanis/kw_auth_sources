@@ -3,7 +3,7 @@
 namespace kalanis\kw_auth_sources\Sources\Mapper;
 
 
-use kalanis\kw_auth_sources\Interfaces;
+use kalanis\kw_accounts\Interfaces;
 use kalanis\kw_auth_sources\Traits\TSeparated;
 use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Search\Search;
@@ -16,7 +16,7 @@ use kalanis\kw_mapper\Search\Search;
  * need kw_mapper!
  * @codeCoverageIgnore because access external content
  */
-class GroupsDatabase implements Interfaces\IWorkGroups
+class GroupsDatabase implements Interfaces\IProcessGroups
 {
     use TSeparated;
 

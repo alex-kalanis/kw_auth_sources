@@ -4,7 +4,7 @@ namespace BasicTests;
 
 
 use CommonTestClass;
-use kalanis\kw_auth_sources\Interfaces\IUser;
+use kalanis\kw_accounts\Interfaces\IUser;
 use kalanis\kw_auth_sources\Statuses;
 
 

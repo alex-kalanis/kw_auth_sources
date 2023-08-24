@@ -3,6 +3,7 @@
 namespace kalanis\kw_auth_sources\Access;
 
 
+use kalanis\kw_accounts\Interfaces as acc_interfaces;
 use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\ExtraParsers;
 use kalanis\kw_auth_sources\Hashes;
@@ -163,7 +164,7 @@ class Factory
             $lock = $this->whichLocks($params);
             $extraParser = $this->whichParser($params);
             $accounts = $this->getAccounts($params, $storage, $hash, $status, $extraParser, $lock);
-            $auth = ($accounts instanceof Interfaces\IAuth) ? $accounts : $this->getAuth($params, $storage, $hash, $status, $extraParser, $lock);
+            $auth = ($accounts instanceof acc_interfaces\IAuth) ? $accounts : $this->getAuth($params, $storage, $hash, $status, $extraParser, $lock);
             return $this->getCompositeSourceInstance(new SourcesAdapters\Direct(
                 $auth,
                 $accounts,
@@ -349,7 +350,7 @@ class Factory
      * @param Interfaces\IStatus $status
      * @param Interfaces\IExtraParser $parser
      * @param ILock $lock
-     * @return Interfaces\IAuth
+     * @return acc_interfaces\IAuth
      */
     protected function getAuth(
         array $params,
@@ -358,9 +359,9 @@ class Factory
         Interfaces\IStatus $status,
         Interfaces\IExtraParser $parser,
         ILock $lock
-    ): Interfaces\IAuth
+    ): acc_interfaces\IAuth
     {
-        if (isset($params['auth']) && ($params['auth'] instanceof Interfaces\IAuth)) {
+        if (isset($params['auth']) && ($params['auth'] instanceof acc_interfaces\IAuth)) {
             return $params['auth'];
         }
         if (isset($params['single_file'])) {
@@ -376,7 +377,7 @@ class Factory
      * @param Interfaces\IStatus $status
      * @param Interfaces\IExtraParser $parser
      * @param ILock $lock
-     * @return Interfaces\IWorkAccounts
+     * @return acc_interfaces\IProcessAccounts
      */
     protected function getAccounts(
         array $params,
@@ -385,9 +386,9 @@ class Factory
         Interfaces\IStatus $status,
         Interfaces\IExtraParser $parser,
         ILock $lock
-    ): Interfaces\IWorkAccounts
+    ): acc_interfaces\IProcessAccounts
     {
-        if (isset($params['accounts']) && ($params['accounts'] instanceof Interfaces\IWorkAccounts)) {
+        if (isset($params['accounts']) && ($params['accounts'] instanceof acc_interfaces\IProcessAccounts)) {
             return $params['accounts'];
         }
         if (isset($params['single_file'])) {
@@ -399,20 +400,20 @@ class Factory
     /**
      * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
      * @param Sources\Files\Storages\AStorage $storage
-     * @param Interfaces\IWorkAccounts $accounts
+     * @param acc_interfaces\IProcessAccounts $accounts
      * @param Interfaces\IExtraParser $parser
      * @param ILock $lock
-     * @return Interfaces\IWorkGroups
+     * @return acc_interfaces\IProcessGroups
      */
     protected function getGroups(
         array $params,
         Sources\Files\Storages\AStorage $storage,
-        Interfaces\IWorkAccounts $accounts,
+        acc_interfaces\IProcessAccounts $accounts,
         Interfaces\IExtraParser $parser,
         ILock $lock
-    ): Interfaces\IWorkGroups
+    ): acc_interfaces\IProcessGroups
     {
-        if (isset($params['groups']) && ($params['groups'] instanceof Interfaces\IWorkGroups)) {
+        if (isset($params['groups']) && ($params['groups'] instanceof acc_interfaces\IProcessGroups)) {
             return $params['groups'];
         }
         return new Sources\Files\Groups($storage, $accounts, $parser, $lock, $this->clearedPath($params), $this->getAusLang());
@@ -420,11 +421,11 @@ class Factory
 
     /**
      * @param array<string|int, string|int|float|object|bool|array<string|int|float|object>> $params
-     * @return Interfaces\IWorkClasses
+     * @return acc_interfaces\IProcessClasses
      */
-    protected function getClasses(array $params): Interfaces\IWorkClasses
+    protected function getClasses(array $params): acc_interfaces\IProcessClasses
     {
-        if (isset($params['classes']) && ($params['classes'] instanceof Interfaces\IWorkClasses)) {
+        if (isset($params['classes']) && ($params['classes'] instanceof acc_interfaces\IProcessClasses)) {
             return $params['classes'];
         }
         return new Sources\Classes();

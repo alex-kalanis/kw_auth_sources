@@ -3,10 +3,11 @@
 namespace kalanis\kw_auth_sources\Sources\Mapper\Database;
 
 
-use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Interfaces\IWorkClasses;
-use kalanis\kw_auth_sources\Interfaces\IUserCert;
+use kalanis\kw_accounts\AccountsException;
+use kalanis\kw_accounts\Interfaces\IUserCert;
+use kalanis\kw_accounts\Interfaces\IProcessClasses;
 use kalanis\kw_mapper\Interfaces\IEntryType;
+use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Records\ASimpleRecord;
 
 
@@ -41,10 +42,22 @@ class UsersRecord extends ASimpleRecord implements IUserCert
         $this->setMapper(UsersMapper::class);
     }
 
+    /**
+     * @param string|null $authId
+     * @param string|null $authName
+     * @param string|null $authGroup
+     * @param int|null $authClass
+     * @param int|null $authStatus
+     * @param string|null $displayName
+     * @param string|null $dir
+     * @param array<string|int, string|int|float|bool>|null $extra
+     * @throws AccountsException
+     * @throws MapperException
+     */
     public function setUserData(?string $authId, ?string $authName, ?string $authGroup, ?int $authClass, ?int $authStatus, ?string $displayName, ?string $dir, ?array $extra = []): void
     {
         if (empty($authId)) {
-            throw new AuthSourcesException('No user ID');
+            throw new AccountsException('No user ID');
         }
         $this->id = $authId;
         $this->load();
@@ -55,6 +68,11 @@ class UsersRecord extends ASimpleRecord implements IUserCert
         $this->save();
     }
 
+    /**
+     * @param string|null $key
+     * @param string|null $salt
+     * @throws MapperException
+     */
     public function addCertInfo(?string $key, ?string $salt): void
     {
         $this->load();
@@ -80,7 +98,7 @@ class UsersRecord extends ASimpleRecord implements IUserCert
 
     public function getClass(): int
     {
-        return IWorkClasses::CLASS_USER;
+        return IProcessClasses::CLASS_USER;
     }
 
     public function getStatus(): int

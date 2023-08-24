@@ -3,8 +3,8 @@
 namespace kalanis\kw_auth_sources\Access\SourcesAdapters;
 
 
-use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Interfaces;
+use kalanis\kw_accounts\AccountsException;
+use kalanis\kw_accounts\Interfaces;
 
 
 /**
@@ -16,7 +16,7 @@ class FirstInstance extends AAdapter
 {
     /**
      * @param mixed ...$params
-     * @throws AuthSourcesException
+     * @throws AccountsException
      */
     public function __construct(...$params)
     {
@@ -25,20 +25,20 @@ class FirstInstance extends AAdapter
                 if ((!$this->auth) && $param instanceof Interfaces\IAuth) {
                     $this->auth = $param;
                 }
-                if ((!$this->accounts) && $param instanceof Interfaces\IWorkAccounts) {
+                if ((!$this->accounts) && $param instanceof Interfaces\IProcessAccounts) {
                     $this->accounts = $param;
                 }
-                if ((!$this->classes) && $param instanceof Interfaces\IWorkClasses) {
+                if ((!$this->classes) && $param instanceof Interfaces\IProcessClasses) {
                     $this->classes = $param;
                 }
-                if ((!$this->groups) && $param instanceof Interfaces\IWorkGroups) {
+                if ((!$this->groups) && $param instanceof Interfaces\IProcessGroups) {
                     $this->groups = $param;
                 }
             }
         }
 
         if (!($this->auth && $this->accounts && $this->classes && $this->groups)) {
-            throw new AuthSourcesException('You must set all necessary classes in the params first!');
+            throw new AccountsException('You must set all necessary classes in the params first!');
         }
     }
 }

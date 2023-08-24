@@ -3,9 +3,9 @@
 namespace kalanis\kw_auth_sources\Sources\Mapper;
 
 
-use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Interfaces\IAuth;
-use kalanis\kw_auth_sources\Interfaces\IUser;
+use kalanis\kw_accounts\AccountsException;
+use kalanis\kw_accounts\Interfaces\IAuth;
+use kalanis\kw_accounts\Interfaces\IUser;
 use kalanis\kw_mapper\MapperException;
 
 
@@ -41,7 +41,7 @@ class AuthLdap implements IAuth
                 ? $this->getDataOnly($userName)
                 : null ;
         } catch (MapperException $ex) {
-            throw new AuthSourcesException($ex->getMessage(), $ex->getCode(), $ex);
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
 
@@ -53,7 +53,7 @@ class AuthLdap implements IAuth
             $record->load();
             return (empty($record->getAuthId())) ? null : $record ;
         } catch (MapperException $ex) {
-            throw new AuthSourcesException($ex->getMessage(), $ex->getCode(), $ex);
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
     }
 }

@@ -5,8 +5,6 @@ namespace TraitsTests;
 
 use CommonTestClass;
 use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Data\TExpire;
-use kalanis\kw_auth_sources\Interfaces\IExpire;
 use kalanis\kw_auth_sources\Traits;
 use kalanis\kw_locks\Interfaces\ILock;
 use kalanis\kw_locks\LockException;
@@ -89,25 +87,6 @@ class FilesTest extends CommonTestClass
         $this->expectException(AuthSourcesException::class);
         $lib->check();
     }
-
-    /**
-     * @throws AuthSourcesException
-     */
-    public function testExpire(): void
-    {
-        $target = new Expire();
-        $lib = new MockExpiration(700, 100);
-        $this->assertFalse($target->willExpire());
-
-        $lib->setExpirationNotice($target, 650);
-        $this->assertTrue($target->willExpire());
-
-        $lib->setExpirationNotice($target, 750);
-        $this->assertFalse($target->willExpire());
-
-        $lib->updateExpirationTime($target);
-        $this->assertEquals(1350, $target->getExpireTime());
-    }
 }
 
 
@@ -139,26 +118,4 @@ class MockAuthLock
     {
         $this->checkLock();
     }
-}
-
-
-class MockExpiration
-{
-    use Traits\TExpiration;
-
-    public function __construct(int $changeInterval, int $changeNoticeBefore)
-    {
-        $this->initExpiry($changeInterval, $changeNoticeBefore);
-    }
-
-    protected function getTime(): int
-    {
-        return 650;
-    }
-}
-
-
-class Expire implements IExpire
-{
-    use TExpire;
 }

@@ -3,16 +3,16 @@
 namespace SourcesTests\Files;
 
 
-use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Data\FileGroup;
-use kalanis\kw_auth_sources\Interfaces\IGroup;
+use kalanis\kw_accounts\AccountsException;
+use kalanis\kw_accounts\Data\FileGroup;
+use kalanis\kw_accounts\Interfaces\IGroup;
 use kalanis\kw_locks\LockException;
 
 
 class GroupsTest extends AFilesTest
 {
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws LockException
      */
     public function testManipulation(): void
@@ -50,19 +50,19 @@ class GroupsTest extends AFilesTest
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws LockException
      */
     public function testCreateFail(): void
     {
         $lib = $this->fullGroupsSources();
         $group = $this->wantedGroup('');
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         $lib->createGroup($group);
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws LockException
      */
     public function testCreateNoFile(): void
@@ -73,7 +73,19 @@ class GroupsTest extends AFilesTest
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
+     * @throws LockException
+     */
+    public function testCreateLocked(): void
+    {
+        $lib = $this->lockedGroupsSources();
+        $group = $this->wantedGroup();
+        $this->expectException(AccountsException::class);
+        $lib->createGroup($group);
+    }
+
+    /**
+     * @throws AccountsException
      * @throws LockException
      */
     public function testGetDataNoFile(): void
@@ -83,7 +95,29 @@ class GroupsTest extends AFilesTest
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
+     * @throws LockException
+     */
+    public function testGetDataLocked(): void
+    {
+        $lib = $this->lockedGroupsSources();
+        $this->expectException(AccountsException::class);
+        $lib->getGroupDataOnly('dummy');
+    }
+
+    /**
+     * @throws AccountsException
+     * @throws LockException
+     */
+    public function testUpdateLocked(): void
+    {
+        $lib = $this->lockedGroupsSources();
+        $this->expectException(AccountsException::class);
+        $lib->updateGroup($this->wantedGroup());
+    }
+
+    /**
+     * @throws AccountsException
      * @throws LockException
      */
     public function testDeleteNoFile(): void
@@ -93,18 +127,29 @@ class GroupsTest extends AFilesTest
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws LockException
      */
     public function testDeleteFail(): void
     {
         $lib = $this->fullGroupsSources();
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         $lib->deleteGroup('1');
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
+     * @throws LockException
+     */
+    public function testDeleteLocked(): void
+    {
+        $lib = $this->lockedGroupsSources();
+        $this->expectException(AccountsException::class);
+        $lib->deleteGroup('1');
+    }
+
+    /**
+     * @throws AccountsException
      * @throws LockException
      */
     public function testAllGroups(): void
@@ -114,6 +159,17 @@ class GroupsTest extends AFilesTest
         $data = $lib->readGroup();
         $this->assertEquals('Maintainers', $data[0]->getGroupDesc());
         $this->assertEquals('1000', $data[1]->getGroupAuthorId());
+    }
+
+    /**
+     * @throws AccountsException
+     * @throws LockException
+     */
+    public function testAllGroupsLocked(): void
+    {
+        $lib = $this->lockedGroupsSources();
+        $this->expectException(AccountsException::class);
+        $lib->readGroup();
     }
 
     protected function wantedGroup($name = 'another'): FileGroup

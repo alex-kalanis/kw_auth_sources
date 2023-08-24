@@ -4,8 +4,8 @@ namespace AccessTests;
 
 
 use CommonTestClass;
+use kalanis\kw_accounts\AccountsException;
 use kalanis\kw_auth_sources\Access;
-use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\ExtraParsers\Serialize;
 use kalanis\kw_auth_sources\Hashes\Md5;
 use kalanis\kw_auth_sources\Sources;
@@ -28,7 +28,7 @@ class AdaptersTest extends CommonTestClass
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws StorageException
      */
     public function testFirstInstance(): void
@@ -68,7 +68,7 @@ class AdaptersTest extends CommonTestClass
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws StorageException
      */
     public function testFirstInstanceNotEnough(): void
@@ -85,7 +85,7 @@ class AdaptersTest extends CommonTestClass
             $fileLock,
             ['extra']
         );
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         new Access\SourcesAdapters\FirstInstance(
             new Sources\Dummy\Accounts(),
             new Sources\Dummy\Groups(),
@@ -103,7 +103,7 @@ class AdaptersTest extends CommonTestClass
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws StorageException
      */
     public function testLastInstance(): void
@@ -143,7 +143,7 @@ class AdaptersTest extends CommonTestClass
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws StorageException
      */
     public function testLastInstanceNotEnough(): void
@@ -160,7 +160,7 @@ class AdaptersTest extends CommonTestClass
             $fileLock,
             ['extra']
         );
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         new Access\SourcesAdapters\LastInstance(
             new Sources\Dummy\Accounts(),
             new Sources\Dummy\Groups(),

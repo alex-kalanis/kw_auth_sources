@@ -3,11 +3,14 @@
 namespace kalanis\kw_auth_sources\Sources\Files;
 
 
+use kalanis\kw_accounts\AccountsException;
+use kalanis\kw_accounts\Data\FileUser;
+use kalanis\kw_accounts\Interfaces as acc_interfaces;
 use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Data\FileUser;
 use kalanis\kw_auth_sources\Interfaces;
 use kalanis\kw_auth_sources\Traits;
 use kalanis\kw_locks\Interfaces\ILock;
+use kalanis\kw_locks\LockException;
 
 
 /**
@@ -15,7 +18,7 @@ use kalanis\kw_locks\Interfaces\ILock;
  * @package kalanis\kw_auth_sources\Sources\Files
  * Authenticate via single file
  */
-class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
+class AccountsSingleFile implements acc_interfaces\IAuth, acc_interfaces\IProcessAccounts
 {
     use Traits\TAuthLock;
     use Traits\TLines;
@@ -71,60 +74,70 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
         $this->extraParser = $parser;
     }
 
-    public function authenticate(string $userName, array $params = []): ?Interfaces\IUser
+    public function authenticate(string $userName, array $params = []): ?acc_interfaces\IUser
     {
         if (empty($params['password'])) {
-            throw new AuthSourcesException($this->getAusLang()->kauPassMustBeSet());
+            throw new AccountsException($this->getAusLang()->kauPassMustBeSet());
         }
         $name = $this->stripChars($userName);
         $pass = strval($params['password']);
 
-        $this->checkLock();
         try {
-            $passLines = $this->openPassword();
-        } catch (AuthSourcesException $ex) {
-            // silence the problems on storage
-            return null;
-        }
-        foreach ($passLines as &$line) {
-            if ($line[static::PW_NAME] == $name) {
-                if (
-                    $this->mode->checkHash($pass, strval($line[static::PW_PASS]))
-                    && $this->status->allowLogin($this->transformFromStringToInt(strval($line[static::PW_STATUS])))
-                ) {
-                    return $this->getUserClass($line);
+            $this->checkLock();
+            try {
+                $passLines = $this->openPassword();
+            } catch (AuthSourcesException $ex) {
+                // silence the problems on storage
+                return null;
+            }
+            foreach ($passLines as &$line) {
+                if ($line[static::PW_NAME] == $name) {
+                    if (
+                        $this->mode->checkHash($pass, strval($line[static::PW_PASS]))
+                        && $this->status->allowLogin($this->transformFromStringToInt(strval($line[static::PW_STATUS])))
+                    ) {
+                        return $this->getUserClass($line);
+                    }
                 }
             }
+            return null;
+
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-        return null;
     }
 
-    public function getDataOnly(string $userName): ?Interfaces\IUser
+    public function getDataOnly(string $userName): ?acc_interfaces\IUser
     {
         $name = $this->stripChars($userName);
 
         // load from password
-        $this->checkLock();
         try {
-            $passwordLines = $this->openPassword();
-        } catch (AuthSourcesException $ex) {
-            // silence the problems on storage
-            return null;
-        }
-        foreach ($passwordLines as &$line) {
-            if ($line[static::PW_NAME] == $name) {
-                return $this->getUserClass($line);
+            $this->checkLock();
+            try {
+                $passwordLines = $this->openPassword();
+            } catch (AuthSourcesException $ex) {
+                // silence the problems on storage
+                return null;
             }
+            foreach ($passwordLines as &$line) {
+                if ($line[static::PW_NAME] == $name) {
+                    return $this->getUserClass($line);
+                }
+            }
+            return null;
+
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-        return null;
     }
 
     /**
      * @param array<int, string|int|float> $line
      * @throws AuthSourcesException
-     * @return Interfaces\IUser
+     * @return acc_interfaces\IUser
      */
-    protected function getUserClass(array &$line): Interfaces\IUser
+    protected function getUserClass(array &$line): acc_interfaces\IUser
     {
         $user = new FileUser();
         $user->setUserData(
@@ -140,7 +153,7 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
         return $user;
     }
 
-    public function createAccount(Interfaces\IUser $user, string $password): bool
+    public function createAccount(acc_interfaces\IUser $user, string $password): bool
     {
         $userName = $this->stripChars($user->getAuthName());
         $directory = $this->stripChars($user->getDir());
@@ -148,159 +161,186 @@ class AccountsSingleFile implements Interfaces\IAuth, Interfaces\IWorkAccounts
 
         // not everything necessary is set
         if (empty($userName) || empty($directory) || empty($password)) {
-            throw new AuthSourcesException($this->getAusLang()->kauPassMissParam());
+            throw new AccountsException($this->getAusLang()->kauPassMissParam());
         }
-        $this->checkLock();
 
-        $uid = Interfaces\IUser::LOWEST_USER_ID;
-        $this->getLock()->create();
-
-        // read password
         try {
-            $passLines = $this->openPassword();
-        } catch (AuthSourcesException $ex) {
-            // silence the problems on storage
-            $passLines = [];
-        }
-        foreach ($passLines as &$line) {
-            $uid = max($uid, intval($line[static::PW_ID]));
-        }
-        $uid++;
+            $this->checkLock();
 
-        $newUserPass = [
-            static::PW_ID => strval($uid),
-            static::PW_NAME => $userName,
-            static::PW_PASS => $this->mode->createHash($password),
-            static::PW_GROUP => empty($user->getGroup()) ? $uid : $user->getGroup() ,
-            static::PW_CLASS => empty($user->getClass()) ? Interfaces\IWorkClasses::CLASS_USER : strval($user->getClass()) ,
-            static::PW_STATUS => $this->transformFromIntToString($user->getStatus()),
-            static::PW_DISPLAY => empty($displayName) ? $userName : $displayName,
-            static::PW_DIR => $directory,
-            static::PW_EXTRA => $this->extraParser->compact($user->getExtra()),
-            static::PW_FEED => '',
-        ];
-        ksort($newUserPass);
-        $passLines[] = $newUserPass;
+            $uid = acc_interfaces\IUser::LOWEST_USER_ID;
+            $this->getLock()->create();
 
-        // now save it
-        try {
-            $result = $this->savePassword($passLines);
-        } finally {
-            $this->getLock()->delete();
+            // read password
+            try {
+                $passLines = $this->openPassword();
+            } catch (AuthSourcesException $ex) {
+                // silence the problems on storage
+                $passLines = [];
+            }
+            foreach ($passLines as &$line) {
+                $uid = max($uid, intval($line[static::PW_ID]));
+            }
+            $uid++;
+
+            $newUserPass = [
+                static::PW_ID => strval($uid),
+                static::PW_NAME => $userName,
+                static::PW_PASS => $this->mode->createHash($password),
+                static::PW_GROUP => empty($user->getGroup()) ? $uid : $user->getGroup() ,
+                static::PW_CLASS => empty($user->getClass()) ? acc_interfaces\IProcessClasses::CLASS_USER : strval($user->getClass()) ,
+                static::PW_STATUS => $this->transformFromIntToString($user->getStatus()),
+                static::PW_DISPLAY => empty($displayName) ? $userName : $displayName,
+                static::PW_DIR => $directory,
+                static::PW_EXTRA => $this->extraParser->compact($user->getExtra()),
+                static::PW_FEED => '',
+            ];
+            ksort($newUserPass);
+            $passLines[] = $newUserPass;
+
+            // now save it
+            try {
+                $result = $this->savePassword($passLines);
+            } finally {
+                $this->getLock()->delete();
+            }
+            return $result;
+
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-        return $result;
     }
 
     public function readAccounts(): array
     {
-        $this->checkLock();
+        try {
+            $this->checkLock();
 
-        $passLines = $this->openPassword();
-        $result = [];
-        foreach ($passLines as &$line) {
-            $result[] = $this->getUserClass($line);
+            $passLines = $this->openPassword();
+            $result = [];
+            foreach ($passLines as &$line) {
+                $result[] = $this->getUserClass($line);
+            }
+
+            return $result;
+
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-
-        return $result;
     }
 
-    public function updateAccount(Interfaces\IUser $user): bool
+    public function updateAccount(acc_interfaces\IUser $user): bool
     {
         $userName = $this->stripChars($user->getAuthName());
         $directory = $this->stripChars($user->getDir());
         $displayName = $this->stripChars($user->getDisplayName());
 
-        $this->checkLock();
-
-        $this->getLock()->create();
         try {
-            $passwordLines = $this->openPassword();
-        } finally {
-            $this->getLock()->delete();
-        }
-        foreach ($passwordLines as &$line) {
-            if ($line[static::PW_NAME] == $userName) {
-                // REFILL
-                $line[static::PW_GROUP] = !empty($user->getGroup()) ? $user->getGroup() : $line[static::PW_GROUP] ;
-                $line[static::PW_CLASS] = !empty($user->getClass()) ? strval($user->getClass()) : $line[static::PW_CLASS] ;
-                $line[static::PW_STATUS] = $this->transformFromIntToString($user->getStatus());
-                $line[static::PW_DISPLAY] = !empty($displayName) ? $displayName : $line[static::PW_DISPLAY] ;
-                $line[static::PW_DIR] = !empty($directory) ? $directory : $line[static::PW_DIR] ;
-                $line[static::PW_EXTRA] = !empty($user->getExtra()) ? $this->extraParser->compact($user->getExtra()) : $line[static::PW_EXTRA] ;
+            $this->checkLock();
+
+            $this->getLock()->create();
+            try {
+                $passwordLines = $this->openPassword();
+            } finally {
+                $this->getLock()->delete();
             }
-        }
+            foreach ($passwordLines as &$line) {
+                if ($line[static::PW_NAME] == $userName) {
+                    // REFILL
+                    $line[static::PW_GROUP] = !empty($user->getGroup()) ? $user->getGroup() : $line[static::PW_GROUP] ;
+                    $line[static::PW_CLASS] = !empty($user->getClass()) ? strval($user->getClass()) : $line[static::PW_CLASS] ;
+                    $line[static::PW_STATUS] = $this->transformFromIntToString($user->getStatus());
+                    $line[static::PW_DISPLAY] = !empty($displayName) ? $displayName : $line[static::PW_DISPLAY] ;
+                    $line[static::PW_DIR] = !empty($directory) ? $directory : $line[static::PW_DIR] ;
+                    $line[static::PW_EXTRA] = !empty($user->getExtra()) ? $this->extraParser->compact($user->getExtra()) : $line[static::PW_EXTRA] ;
+                }
+            }
 
-        try {
-            $result = $this->savePassword($passwordLines);
-        } finally {
-            $this->getLock()->delete();
+            try {
+                $result = $this->savePassword($passwordLines);
+            } finally {
+                $this->getLock()->delete();
+            }
+            return $result;
+
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-        return $result;
     }
 
     public function updatePassword(string $userName, string $passWord): bool
     {
         $name = $this->stripChars($userName);
         // load from shadow
-        $this->checkLock();
-
-        $changed = false;
-        $this->getLock()->create();
-
         try {
-            $lines = $this->openPassword();
-        } finally {
-            $this->getLock()->delete();
-        }
-        foreach ($lines as &$line) {
-            if ($line[static::PW_NAME] == $name) {
-                $changed = true;
-                $line[static::PW_PASS] = $this->mode->createHash($passWord);
+            $this->checkLock();
+
+            $changed = false;
+            $this->getLock()->create();
+
+            try {
+                $lines = $this->openPassword();
+            } finally {
+                $this->getLock()->delete();
             }
-        }
-        try {
-            if ($changed) {
-                $this->savePassword($lines);
+            foreach ($lines as &$line) {
+                if ($line[static::PW_NAME] == $name) {
+                    $changed = true;
+                    $line[static::PW_PASS] = $this->mode->createHash($passWord);
+                }
             }
-        } finally {
-            $this->getLock()->delete();
+            try {
+                if ($changed) {
+                    $this->savePassword($lines);
+                }
+            } finally {
+                $this->getLock()->delete();
+            }
+            return true;
+
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-        return true;
     }
 
     public function deleteAccount(string $userName): bool
     {
         $name = $this->stripChars($userName);
-        $this->checkLock();
 
-        $changed = false;
-        $this->getLock()->create();
-
-        // update password
         try {
-            $passLines = $this->openPassword();
-        } catch (AuthSourcesException $ex) {
-            // removal on non-existent file is not possible and not necessary
-            $this->getLock()->delete();
+            $this->checkLock();
+
+            $changed = false;
+            $this->getLock()->create();
+
+            // update password
+            try {
+                $passLines = $this->openPassword();
+            } catch (AuthSourcesException $ex) {
+                // removal on non-existent file is not possible and not necessary
+                $this->getLock()->delete();
+                return true;
+            }
+
+            foreach ($passLines as $index => &$line) {
+                if ($line[static::PW_NAME] == $name) {
+                    unset($passLines[$index]);
+                    $changed = true;
+                }
+            }
+
+            // now save it all
+            try {
+                if ($changed) {
+                    $this->savePassword($passLines);
+                }
+            } finally {
+                $this->getLock()->delete();
+            }
             return true;
-        }
 
-        foreach ($passLines as $index => &$line) {
-            if ($line[static::PW_NAME] == $name) {
-                unset($passLines[$index]);
-                $changed = true;
-            }
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-
-        // now save it all
-        try {
-            if ($changed) {
-                $this->savePassword($passLines);
-            }
-        } finally {
-            $this->getLock()->delete();
-        }
-        return true;
     }
 
     /**

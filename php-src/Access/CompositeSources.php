@@ -3,14 +3,14 @@
 namespace kalanis\kw_auth_sources\Access;
 
 
-use kalanis\kw_auth_sources\Interfaces;
+use kalanis\kw_accounts\Interfaces;
 
 
 /**
  * Class CompositeSources
  * @package kalanis\kw_auth_sources\Access
  */
-class CompositeSources implements Interfaces\IAuthCert, Interfaces\IWorkAccounts, Interfaces\IWorkClasses, Interfaces\IWorkGroups
+class CompositeSources implements Interfaces\IAuthCert, Interfaces\IProcessAccounts, Interfaces\IProcessClasses, Interfaces\IProcessGroups
 {
     /** @var SourcesAdapters\AAdapter */
     protected $adapter = null;
@@ -108,17 +108,17 @@ class CompositeSources implements Interfaces\IAuthCert, Interfaces\IWorkAccounts
         return $this->adapter->getAuth();
     }
 
-    public function getAccounts(): Interfaces\IWorkAccounts
+    public function getAccounts(): Interfaces\IProcessAccounts
     {
         return $this->adapter->getAccounts();
     }
 
-    public function getClasses(): Interfaces\IWorkClasses
+    public function getClasses(): Interfaces\IProcessClasses
     {
         return $this->adapter->getClasses();
     }
 
-    public function getGroups(): Interfaces\IWorkGroups
+    public function getGroups(): Interfaces\IProcessGroups
     {
         return $this->adapter->getGroups();
     }

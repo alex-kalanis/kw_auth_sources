@@ -3,8 +3,10 @@
 namespace kalanis\kw_auth_sources\Sources\Files;
 
 
+use kalanis\kw_accounts\AccountsException;
+use kalanis\kw_accounts\Data\FileGroup;
+use kalanis\kw_accounts\Interfaces as acc_interfaces;
 use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Data\FileGroup;
 use kalanis\kw_auth_sources\Interfaces;
 use kalanis\kw_auth_sources\Traits;
 use kalanis\kw_locks\Interfaces\ILock;
@@ -16,7 +18,7 @@ use kalanis\kw_locks\LockException;
  * @package kalanis\kw_auth_sources\Sources\Files
  * Work with groups of users
  */
-class Groups implements Interfaces\IWorkGroups
+class Groups implements acc_interfaces\IProcessGroups
 {
     use Traits\TAuthLock;
     use Traits\TLines;
@@ -35,7 +37,7 @@ class Groups implements Interfaces\IWorkGroups
 
     /** @var Storages\AStorage */
     protected $storage = null;
-    /** @var Interfaces\IWorkAccounts */
+    /** @var acc_interfaces\IProcessAccounts */
     protected $accounts = null;
     /** @var Interfaces\IExtraParser */
     protected $extraParser = null;
@@ -44,7 +46,7 @@ class Groups implements Interfaces\IWorkGroups
 
     /**
      * @param Storages\AStorage $storage
-     * @param Interfaces\IWorkAccounts $accounts
+     * @param acc_interfaces\IProcessAccounts $accounts
      * @param Interfaces\IExtraParser $parser
      * @param ILock $lock
      * @param string[] $path
@@ -52,7 +54,7 @@ class Groups implements Interfaces\IWorkGroups
      */
     public function __construct(
         Storages\AStorage $storage,
-        Interfaces\IWorkAccounts $accounts,
+        acc_interfaces\IProcessAccounts $accounts,
         Interfaces\IExtraParser $parser,
         ILock $lock,
         array $path,
@@ -67,7 +69,7 @@ class Groups implements Interfaces\IWorkGroups
         $this->extraParser = $parser;
     }
 
-    public function createGroup(Interfaces\IGroup $group): bool
+    public function createGroup(acc_interfaces\IGroup $group): bool
     {
         $userId = $group->getGroupAuthorId();
         $groupName = $this->stripChars($group->getGroupName());
@@ -75,83 +77,99 @@ class Groups implements Interfaces\IWorkGroups
 
         // not everything necessary is set
         if (empty($userId) || empty($groupName)) {
-            throw new AuthSourcesException($this->getAusLang()->kauGroupMissParam());
+            throw new AccountsException($this->getAusLang()->kauGroupMissParam());
         }
-        $this->checkLock();
-
-        $gid = 0;
-        $this->getLock()->create();
-
-        // read groups
-        try {
-            $groupLines = $this->openGroups();
-        } catch (AuthSourcesException $ex) {
-            // silence the problems on storage
-            $groupLines = [];
-        }
-        foreach ($groupLines as &$line) {
-            $gid = max($gid, $line[static::GRP_ID]);
-        }
-        $gid++;
-
-        $newGroup = [
-            static::GRP_ID => $gid,
-            static::GRP_NAME => $groupName,
-            static::GRP_AUTHOR => $userId,
-            static::GRP_DESC => !empty($groupDesc) ? $groupDesc : $groupName,
-            static::GRP_STATUS => $group->getGroupStatus(),
-            static::GRP_PARENTS => $this->compactStr($group->getGroupParents()),
-            static::GRP_EXTRA => $this->extraParser->compact($group->getGroupExtra()),
-            static::GRP_FEED => '',
-        ];
-        ksort($newGroup);
-        $groupLines[] = $newGroup;
 
         try {
-            // now save it
-            $result = $this->saveGroups($groupLines);
-        } finally {
-            $this->getLock()->delete();
+            $this->checkLock();
+
+            $gid = 0;
+            $this->getLock()->create();
+
+            // read groups
+            try {
+                $groupLines = $this->openGroups();
+            } catch (AuthSourcesException $ex) {
+                // silence the problems on storage
+                $groupLines = [];
+            }
+            foreach ($groupLines as &$line) {
+                $gid = max($gid, $line[static::GRP_ID]);
+            }
+            $gid++;
+
+            $newGroup = [
+                static::GRP_ID => $gid,
+                static::GRP_NAME => $groupName,
+                static::GRP_AUTHOR => $userId,
+                static::GRP_DESC => !empty($groupDesc) ? $groupDesc : $groupName,
+                static::GRP_STATUS => $group->getGroupStatus(),
+                static::GRP_PARENTS => $this->compactStr($group->getGroupParents()),
+                static::GRP_EXTRA => $this->extraParser->compact($group->getGroupExtra()),
+                static::GRP_FEED => '',
+            ];
+            ksort($newGroup);
+            $groupLines[] = $newGroup;
+
+            try {
+                // now save it
+                $result = $this->saveGroups($groupLines);
+            } finally {
+                $this->getLock()->delete();
+            }
+            return $result;
+
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-        return $result;
     }
 
-    public function getGroupDataOnly(string $groupId): ?Interfaces\IGroup
+    public function getGroupDataOnly(string $groupId): ?acc_interfaces\IGroup
     {
-        $this->checkLock();
         try {
-            $groupLines = $this->openGroups();
-        } catch (AuthSourcesException $ex) {
-            // silence the problems on storage
-            return null;
-        }
-        foreach ($groupLines as &$line) {
-            if ($line[static::GRP_ID] == $groupId) {
-                return $this->getGroupClass($line);
+            $this->checkLock();
+            try {
+                $groupLines = $this->openGroups();
+            } catch (AuthSourcesException $ex) {
+                // silence the problems on storage
+                return null;
             }
+            foreach ($groupLines as &$line) {
+                if ($line[static::GRP_ID] == $groupId) {
+                    return $this->getGroupClass($line);
+                }
+            }
+            return null;
+
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-        return null;
     }
 
     public function readGroup(): array
     {
-        $this->checkLock();
+        try {
+            $this->checkLock();
 
-        $groupLines = $this->openGroups();
-        $result = [];
-        foreach ($groupLines as &$line) {
-            $result[] = $this->getGroupClass($line);
+            $groupLines = $this->openGroups();
+            $result = [];
+            foreach ($groupLines as &$line) {
+                $result[] = $this->getGroupClass($line);
+            }
+
+            return $result;
+
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-
-        return $result;
     }
 
     /**
      * @param array<int, string> $line
      * @throws AuthSourcesException
-     * @return Interfaces\IGroup
+     * @return acc_interfaces\IGroup
      */
-    protected function getGroupClass(array &$line): Interfaces\IGroup
+    protected function getGroupClass(array &$line): acc_interfaces\IGroup
     {
         $group = new FileGroup();
         $group->setGroupData(
@@ -166,96 +184,93 @@ class Groups implements Interfaces\IWorkGroups
         return $group;
     }
 
-    /**
-     * @param Interfaces\IGroup $group
-     * @throws LockException
-     * @throws AuthSourcesException
-     * @return bool
-     */
-    public function updateGroup(Interfaces\IGroup $group): bool
+    public function updateGroup(acc_interfaces\IGroup $group): bool
     {
         $groupName = $this->stripChars($group->getGroupName());
         $groupDesc = $this->stripChars($group->getGroupDesc());
 
-        $this->checkLock();
-
-        $this->getLock()->create();
         try {
-            $groupLines = $this->openGroups();
-        } finally {
-            $this->getLock()->delete();
-        }
-        foreach ($groupLines as &$line) {
-            if ($line[static::GRP_ID] == $group->getGroupId()) {
-                // REFILL
-                $line[static::GRP_NAME] = !empty($groupName) ? $groupName : $line[static::GRP_NAME] ;
-                $line[static::GRP_DESC] = !empty($groupDesc) ? $groupDesc : $line[static::GRP_DESC] ;
-                $line[static::GRP_STATUS] = $group->getGroupStatus();
-                $line[static::GRP_PARENTS] = $this->compactStr($group->getGroupParents());
-                $line[static::GRP_EXTRA] = $this->extraParser->compact($group->getGroupExtra());
+            $this->checkLock();
+
+            $this->getLock()->create();
+            try {
+                $groupLines = $this->openGroups();
+            } finally {
+                $this->getLock()->delete();
             }
-        }
+            foreach ($groupLines as &$line) {
+                if ($line[static::GRP_ID] == $group->getGroupId()) {
+                    // REFILL
+                    $line[static::GRP_NAME] = !empty($groupName) ? $groupName : $line[static::GRP_NAME] ;
+                    $line[static::GRP_DESC] = !empty($groupDesc) ? $groupDesc : $line[static::GRP_DESC] ;
+                    $line[static::GRP_STATUS] = $group->getGroupStatus();
+                    $line[static::GRP_PARENTS] = $this->compactStr($group->getGroupParents());
+                    $line[static::GRP_EXTRA] = $this->extraParser->compact($group->getGroupExtra());
+                }
+            }
 
-        try {
-            $result = $this->saveGroups($groupLines);
-        } finally {
-            $this->getLock()->delete();
+            try {
+                $result = $this->saveGroups($groupLines);
+            } finally {
+                $this->getLock()->delete();
+            }
+            return $result;
+
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-        return $result;
     }
 
-    /**
-     * @param string $groupId
-     * @throws LockException
-     * @throws AuthSourcesException
-     * @return bool
-     */
     public function deleteGroup(string $groupId): bool
     {
-        $this->checkLock();
-        $this->checkRest($groupId);
-
-        $changed = false;
-        $this->getLock()->create();
-
-        // update groups
         try {
-            $openGroups = $this->openGroups();
-        } catch (AuthSourcesException $ex) {
-            // silence the problems on storage
-            $this->getLock()->delete();
-            return false;
-        }
-        foreach ($openGroups as $index => &$line) {
-            if ($line[static::GRP_ID] == $groupId) {
-                unset($openGroups[$index]);
-                $changed = true;
-            }
-        }
+            $this->checkLock();
+            $this->checkRest($groupId);
 
-        $result = true;
-        try {
-            // now save it
-            if ($changed) {
-                $result = $this->saveGroups($openGroups);
+            $changed = false;
+            $this->getLock()->create();
+
+            // update groups
+            try {
+                $openGroups = $this->openGroups();
+            } catch (AuthSourcesException $ex) {
+                // silence the problems on storage
+                $this->getLock()->delete();
+                return false;
             }
-        } finally {
-            $this->getLock()->delete();
+            foreach ($openGroups as $index => &$line) {
+                if ($line[static::GRP_ID] == $groupId) {
+                    unset($openGroups[$index]);
+                    $changed = true;
+                }
+            }
+
+            $result = true;
+            try {
+                // now save it
+                if ($changed) {
+                    $result = $this->saveGroups($openGroups);
+                }
+            } finally {
+                $this->getLock()->delete();
+            }
+            return $changed && $result;
+
+        } catch (AuthSourcesException | LockException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-        return $changed && $result;
     }
 
     /**
      * @param string $groupId
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     protected function checkRest(string $groupId): void
     {
         $passLines = $this->accounts->readAccounts();
         foreach ($passLines as &$line) {
             if ($line->getGroup() == $groupId) {
-                throw new AuthSourcesException($this->getAusLang()->kauGroupHasMembers());
+                throw new AccountsException($this->getAusLang()->kauGroupHasMembers());
             }
         }
     }

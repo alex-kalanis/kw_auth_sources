@@ -3,17 +3,15 @@
 namespace SourcesTests\Memory;
 
 
-use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Data\FileGroup;
-use kalanis\kw_auth_sources\Interfaces\IGroup;
-use kalanis\kw_locks\LockException;
+use kalanis\kw_accounts\AccountsException;
+use kalanis\kw_accounts\Data\FileGroup;
+use kalanis\kw_accounts\Interfaces\IGroup;
 
 
 class GroupsTest extends AMemoryTest
 {
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testManipulation(): void
     {
@@ -51,8 +49,7 @@ class GroupsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testCreateFail(): void
     {
@@ -62,8 +59,7 @@ class GroupsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testUpdateNothingWhat(): void
     {
@@ -73,8 +69,7 @@ class GroupsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testGetDataNoFile(): void
     {
@@ -83,8 +78,7 @@ class GroupsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testDeleteFail(): void
     {
@@ -93,8 +87,7 @@ class GroupsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testAllGroups(): void
     {

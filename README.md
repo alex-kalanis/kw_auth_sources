@@ -8,7 +8,7 @@
 [![License](https://poser.pugx.org/alex-kalanis/kw_auth_sources/license.svg?v=1)](https://packagist.org/packages/alex-kalanis/kw_auth_sources)
 [![Code Coverage](https://scrutinizer-ci.com/g/alex-kalanis/kw_auth_sources/badges/coverage.png?b=master&v=1)](https://scrutinizer-ci.com/g/alex-kalanis/kw_auth_sources/?branch=master)
 
-Authentication to site - where the data with accounts are stored.
+Authentication to site - where the data with accounts are stored and how to work with them.
 
 These libraries represent internal getters and setters to access accounts on target
 site. Just configure where to find them and it's possible to process all basic yet
@@ -35,7 +35,7 @@ ignored and another can be available under "extra".
 ```
 {
     "require": {
-        "alex-kalanis/kw_auth_sources": "1.0"
+        "alex-kalanis/kw_auth_sources": "3.0"
     }
 }
 ```
@@ -56,4 +56,4 @@ familiar with composer)
 
 ## Caveats
 
-It's build for standalone usage - nothing more need than basics.
+It's build for standalone usage - nothing more need than basics and dependencies.

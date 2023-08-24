@@ -11,6 +11,7 @@ use kalanis\kw_auth_sources\Interfaces\IKAusTranslations;
 use kalanis\kw_auth_sources\Sources\Files;
 use kalanis\kw_auth_sources\Statuses\Always;
 use kalanis\kw_auth_sources\Traits\TLang;
+use kalanis\kw_locks\Interfaces\ILock;
 use kalanis\kw_locks\LockException;
 use MockHashes;
 
@@ -38,6 +39,22 @@ abstract class AFilesTest extends CommonTestClass
     /**
      * Contains a full comedy/tragedy of work with locks
      * @throws LockException
+     * @return Files\Groups
+     */
+    protected function lockedGroupsSources(): Files\Groups
+    {
+        return new Files\Groups(
+            $this->getStoragesFullFiles(),
+            $this->fullFilesSources(),
+            new ExtraParsers\Json(),
+            new XLockPermanent(),
+            $this->sourcePath
+        );
+    }
+
+    /**
+     * Contains a full comedy/tragedy of work with locks
+     * @throws LockException
      * @return Files\AccountsMultiFile
      */
     protected function fullFilesSources(): Files\AccountsMultiFile
@@ -48,6 +65,22 @@ abstract class AFilesTest extends CommonTestClass
             new Always(),
             new ExtraParsers\Json(),
             $this->getLockPath(),
+            $this->sourcePath
+        );
+    }
+
+    /**
+     * Contains a full comedy/tragedy of work with locks
+     * @return Files\AccountsMultiFile
+     */
+    protected function lockFailFilesSources(): Files\AccountsMultiFile
+    {
+        return new Files\AccountsMultiFile(
+            $this->getStoragesFullFiles(),
+            new MockHashes(),
+            new Always(),
+            new ExtraParsers\Json(),
+            new XLockPermanent(),
             $this->sourcePath
         );
     }
@@ -120,6 +153,22 @@ abstract class AFilesTest extends CommonTestClass
             new Always(),
             new ExtraParsers\Serialize(),
             $this->getLockPath(),
+            $this->sourcePath
+        );
+    }
+
+    /**
+     * Contains a partial files - no groups or shadow files
+     * @return Files\AccountsSingleFile
+     */
+    protected function lockFailFileSources(): Files\AccountsSingleFile
+    {
+        return new Files\AccountsSingleFile(
+            $this->getStoragePartial(),
+            new MockHashes(),
+            new Always(),
+            new ExtraParsers\Serialize(),
+            new XLockPermanent(),
             $this->sourcePath
         );
     }
@@ -240,5 +289,24 @@ class XStorage extends Files\Storages\AStorage
     protected function noDirectoryDelimiterSet(): string
     {
         return 'mock';
+    }
+}
+
+
+class XLockPermanent implements ILock
+{
+    public function has(): bool
+    {
+        return true;
+    }
+
+    public function create(bool $force = false): bool
+    {
+        return false;
+    }
+
+    public function delete(bool $force = false): bool
+    {
+        return false;
     }
 }

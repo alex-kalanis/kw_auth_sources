@@ -3,17 +3,15 @@
 namespace SourcesTests\Memory;
 
 
-use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Data\FileUser;
-use kalanis\kw_auth_sources\Interfaces\IUser;
-use kalanis\kw_locks\LockException;
+use kalanis\kw_accounts\AccountsException;
+use kalanis\kw_accounts\Data\FileUser;
+use kalanis\kw_accounts\Interfaces\IUser;
 
 
 class AccountsTest extends AMemoryTest
 {
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testNotExistsData(): void
     {
@@ -23,8 +21,7 @@ class AccountsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testDataOnly(): void
     {
@@ -41,8 +38,7 @@ class AccountsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testAuthenticate(): void
     {
@@ -54,19 +50,27 @@ class AccountsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testAuthenticateNoPass(): void
     {
         $lib = $this->fullFileSources();
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         $lib->authenticate('manager', []);
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
+     */
+    public function testAuthenticateOnFailedHash(): void
+    {
+        $lib = $this->failedFileSources();
+        $this->expectException(AccountsException::class);
+        $lib->authenticate('manager', ['password' => 'valid']);
+    }
+
+    /**
+     * @throws AccountsException
      */
     public function testCreateAccountOnEmptyInstance(): void
     {
@@ -74,7 +78,7 @@ class AccountsTest extends AMemoryTest
         $user = $this->wantedUser();
 
         // create
-        $lib->createAccount($user, 'here to set');
+        $this->assertTrue($lib->createAccount($user, 'here to set'));
 
         // check data
         $saved = $lib->getDataOnly($user->getAuthName());
@@ -84,8 +88,20 @@ class AccountsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
+     */
+    public function testCreateAccountOnFailedHash(): void
+    {
+        $lib = $this->failedFileSources();
+        $user = $this->wantedUser();
+
+        // create
+        $this->expectException(AccountsException::class);
+        $lib->createAccount($user, 'here to set');
+    }
+
+    /**
+     * @throws AccountsException
      */
     public function testUpdateAccountOnEmptyInstance(): void
     {
@@ -97,8 +113,7 @@ class AccountsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testUpdatePasswordOnEmptyInstance(): void
     {
@@ -108,8 +123,18 @@ class AccountsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
+     */
+    public function testUpdatePasswordOnFailedHash(): void
+    {
+        $lib = $this->failedFileSources();
+        // update
+        $this->expectException(AccountsException::class);
+        $lib->updatePassword('manager', 'not important');
+    }
+
+    /**
+     * @throws AccountsException
      */
     public function testRemoveAccountOnEmptyInstance(): void
     {
@@ -122,8 +147,7 @@ class AccountsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testAccountManipulation(): void
     {
@@ -172,8 +196,7 @@ class AccountsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testCreateFail(): void
     {
@@ -189,8 +212,7 @@ class AccountsTest extends AMemoryTest
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testAllUsers(): void
     {

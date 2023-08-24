@@ -3,16 +3,16 @@
 namespace SourcesTests\Files;
 
 
-use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_auth_sources\Data\FileCertUser;
-use kalanis\kw_auth_sources\Interfaces\IUser;
+use kalanis\kw_accounts\AccountsException;
+use kalanis\kw_accounts\Data\FileCertUser;
+use kalanis\kw_accounts\Interfaces\IUser;
 use kalanis\kw_locks\LockException;
 
 
 class AccountsMultiFilesTest extends AFilesTest
 {
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws LockException
      */
     public function testNotExistsData(): void
@@ -24,7 +24,7 @@ class AccountsMultiFilesTest extends AFilesTest
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws LockException
      */
     public function testDataOnly(): void
@@ -43,7 +43,27 @@ class AccountsMultiFilesTest extends AFilesTest
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
+     */
+    public function testDataOnlyLocked(): void
+    {
+        $lib = $this->lockFailFilesSources();
+        $this->expectException(AccountsException::class);
+        $lib->getDataOnly('manager');
+    }
+
+    /**
+     * @throws AccountsException
+     */
+    public function testCertDataOnlyLocked(): void
+    {
+        $lib = $this->lockFailFilesSources();
+        $this->expectException(AccountsException::class);
+        $lib->getCertData('manager');
+    }
+
+    /**
+     * @throws AccountsException
      * @throws LockException
      */
     public function testAuthenticate(): void
@@ -56,18 +76,28 @@ class AccountsMultiFilesTest extends AFilesTest
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws LockException
      */
     public function testAuthenticateNoPass(): void
     {
         $lib = $this->fullFilesSources();
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         $lib->authenticate('manager', []);
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
+     */
+    public function testAuthenticateLocked(): void
+    {
+        $lib = $this->lockFailFilesSources();
+        $this->expectException(AccountsException::class);
+        $lib->authenticate('manager', ['password' => 'valid']);
+    }
+
+    /**
+     * @throws AccountsException
      * @throws LockException
      */
     public function testCreateAccountOnEmptyInstance(): void
@@ -86,7 +116,20 @@ class AccountsMultiFilesTest extends AFilesTest
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
+     */
+    public function testCreateAccountLocked(): void
+    {
+        $lib = $this->lockFailFilesSources();
+        $user = $this->wantedUser();
+
+        // create
+        $this->expectException(AccountsException::class);
+        $lib->createAccount($user, 'here to set');
+    }
+
+    /**
+     * @throws AccountsException
      * @throws LockException
      */
     public function testUpdateAccountOnEmptyInstance(): void
@@ -94,36 +137,70 @@ class AccountsMultiFilesTest extends AFilesTest
         $lib = $this->emptyFilesSources();
         $user = $this->wantedUser();
 
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         $lib->updateAccount($user);
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
+     */
+    public function testUpdateAccountLocked(): void
+    {
+        $lib = $this->lockFailFilesSources();
+        $user = $this->wantedUser();
+
+        $this->expectException(AccountsException::class);
+        $lib->updateAccount($user);
+    }
+
+    /**
+     * @throws AccountsException
      * @throws LockException
      */
     public function testUpdatePasswordOnEmptyInstance(): void
     {
         $lib = $this->emptyFilesSources();
 
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         $lib->updatePassword('someone', 'not important');
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
+     */
+    public function testUpdatePasswordLocked(): void
+    {
+        $lib = $this->lockFailFilesSources();
+
+        $this->expectException(AccountsException::class);
+        $lib->updatePassword('manager', 'not important');
+    }
+
+    /**
+     * @throws AccountsException
      * @throws LockException
      */
     public function testUpdateCertsOnEmptyInstance(): void
     {
         $lib = $this->emptyFilesSources();
 
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         $lib->updateCertKeys('someone', 'can be empty in this case', 'not important');
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
+     */
+    public function testUpdateCertsLocked(): void
+    {
+        $lib = $this->lockFailFilesSources();
+
+        $this->expectException(AccountsException::class);
+        $lib->updateCertKeys('manager', 'can be empty in this case', 'not important');
+    }
+
+    /**
+     * @throws AccountsException
      * @throws LockException
      */
     public function testDeleteAccountOnEmptyInstance(): void
@@ -131,12 +208,12 @@ class AccountsMultiFilesTest extends AFilesTest
         $lib = $this->emptyFilesSources();
         $user = $this->wantedUser();
 
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         $lib->deleteAccount($user->getAuthName());
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws LockException
      */
     public function testDeleteAccountOnPartialInstance(): void
@@ -144,12 +221,25 @@ class AccountsMultiFilesTest extends AFilesTest
         $lib = $this->partialFilesSources();
         $user = $this->wantedUser();
 
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         $lib->deleteAccount($user->getAuthName());
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
+     * @throws LockException
+     */
+    public function testDeleteAccountLocked(): void
+    {
+        $lib = $this->lockFailFilesSources();
+        $user = $this->wantedUser();
+
+        $this->expectException(AccountsException::class);
+        $lib->deleteAccount($user->getAuthName());
+    }
+
+    /**
+     * @throws AccountsException
      * @throws LockException
      */
     public function testAccountManipulation(): void
@@ -215,7 +305,7 @@ class AccountsMultiFilesTest extends AFilesTest
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws LockException
      * AuthId is not correct but auth name is
      */
@@ -225,24 +315,24 @@ class AccountsMultiFilesTest extends AFilesTest
         $user = new FileCertUser();
         $user->setUserData('600', 'worker', '0', 0, 2, 'Die on set', 'so_here');
 
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         $lib->updateAccount($user);
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws LockException
      */
     public function testCreateFail(): void
     {
         $lib = $this->fullFilesSources();
         $user = $this->wantedUser();
-        $this->expectException(AuthSourcesException::class);
+        $this->expectException(AccountsException::class);
         $lib->createAccount($user, '');
     }
 
     /**
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws LockException
      */
     public function testAllUsers(): void
@@ -252,6 +342,16 @@ class AccountsMultiFilesTest extends AFilesTest
         $data = $lib->readAccounts();
         $this->assertEquals(1, $data[0]->getClass());
         $this->assertEquals('manager', $data[1]->getAuthName());
+    }
+
+    /**
+     * @throws AccountsException
+     */
+    public function testAllUsersLocked(): void
+    {
+        $lib = $this->lockFailFilesSources();
+        $this->expectException(AccountsException::class);
+        $lib->readAccounts();
     }
 
     protected function wantedUser(): FileCertUser

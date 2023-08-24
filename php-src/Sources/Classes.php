@@ -3,7 +3,7 @@
 namespace kalanis\kw_auth_sources\Sources;
 
 
-use kalanis\kw_auth_sources\Interfaces\IWorkClasses;
+use kalanis\kw_accounts\Interfaces\IProcessClasses;
 
 
 /**
@@ -11,7 +11,7 @@ use kalanis\kw_auth_sources\Interfaces\IWorkClasses;
  * @package kalanis\kw_auth_sources\Sources
  * Work with internal classes
  */
-class Classes implements IWorkClasses
+class Classes implements IProcessClasses
 {
     /**
      * @return array<int, string>
@@ -19,9 +19,9 @@ class Classes implements IWorkClasses
     public function readClasses(): array
     {
         return [
-            IWorkClasses::CLASS_MAINTAINER => 'Maintainer',
-            IWorkClasses::CLASS_ADMIN => 'Admin',
-            IWorkClasses::CLASS_USER => 'User',
+            IProcessClasses::CLASS_MAINTAINER => 'Maintainer',
+            IProcessClasses::CLASS_ADMIN => 'Admin',
+            IProcessClasses::CLASS_USER => 'User',
         ];
     }
 }

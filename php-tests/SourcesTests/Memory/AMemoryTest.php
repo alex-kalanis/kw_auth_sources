@@ -4,8 +4,10 @@ namespace SourcesTests\Memory;
 
 
 use CommonTestClass;
-use kalanis\kw_auth_sources\Data\FileCertUser;
-use kalanis\kw_auth_sources\Data\FileGroup;
+use kalanis\kw_accounts\Data\FileCertUser;
+use kalanis\kw_accounts\Data\FileGroup;
+use kalanis\kw_auth_sources\AuthSourcesException;
+use kalanis\kw_auth_sources\Interfaces\IHashes;
 use kalanis\kw_auth_sources\Sources\Memory;
 use MockHashes;
 
@@ -49,6 +51,15 @@ abstract class AMemoryTest extends CommonTestClass
     }
 
     /**
+     * Contains a hash class which fails every time
+     * @return Memory\Accounts
+     */
+    protected function failedFileSources(): Memory\Accounts
+    {
+        return new Memory\Accounts(new XHashFail(), $this->getUserClasses());
+    }
+
+    /**
      * Contains a partial files - no groups or shadow files
      * @return Memory\AccountsCerts
      */
@@ -89,3 +100,18 @@ abstract class AMemoryTest extends CommonTestClass
         return [$g1, $g2, $g3];
     }
 }
+
+
+class XHashFail implements IHashes
+{
+    public function checkHash(string $pass, string $hash): bool
+    {
+        throw new AuthSourcesException('mock');
+    }
+
+    public function createHash(string $pass, ?string $method = null): string
+    {
+        throw new AuthSourcesException('mock');
+    }
+}
+

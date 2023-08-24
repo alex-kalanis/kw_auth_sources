@@ -3,8 +3,8 @@
 namespace kalanis\kw_auth_sources\Sources\Mapper\Ldap;
 
 
-use kalanis\kw_auth_sources\Interfaces\IWorkClasses;
-use kalanis\kw_auth_sources\Interfaces\IUser;
+use kalanis\kw_accounts\Interfaces\IProcessClasses;
+use kalanis\kw_accounts\Interfaces\IUser;
 use kalanis\kw_mapper\Interfaces\IEntryType;
 use kalanis\kw_mapper\Records\ASimpleRecord;
 
@@ -48,7 +48,7 @@ class LdapRecord extends ASimpleRecord implements IUser
 
     public function getClass(): int
     {
-        return IWorkClasses::CLASS_USER;
+        return IProcessClasses::CLASS_USER;
     }
 
     public function getStatus(): int

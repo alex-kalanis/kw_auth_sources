@@ -3,6 +3,8 @@
 namespace kalanis\kw_auth_sources\Sources\Mapper;
 
 
+use kalanis\kw_accounts\AccountsException;
+use kalanis\kw_accounts\Interfaces as acc_interfaces;
 use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\Interfaces;
 use kalanis\kw_auth_sources\Traits\TLang;
@@ -18,7 +20,7 @@ use kalanis\kw_mapper\Search\Search;
  * need kw_mapper!
  * @codeCoverageIgnore because access external content
  */
-class AccountsDatabase implements Interfaces\IAuthCert, Interfaces\IWorkAccounts
+class AccountsDatabase implements acc_interfaces\IAuthCert, acc_interfaces\IProcessAccounts
 {
     use TLang;
     use TSeparated;
@@ -35,63 +37,60 @@ class AccountsDatabase implements Interfaces\IAuthCert, Interfaces\IWorkAccounts
         $this->usersRecord = new Database\UsersRecord();
     }
 
-    /**
-     * @param string $userName
-     * @param array<string, string|int|float> $params
-     * @throws AuthSourcesException
-     * @throws MapperException
-     * @return Interfaces\IUser|null
-     */
-    public function authenticate(string $userName, array $params = []): ?Interfaces\IUser
+    public function authenticate(string $userName, array $params = []): ?acc_interfaces\IUser
     {
         if (!isset($params['password'])) {
-            throw new AuthSourcesException($this->getAusLang()->kauPassMustBeSet());
+            throw new AccountsException($this->getAusLang()->kauPassMustBeSet());
         }
-        $record = $this->getByLogin($userName);
-        if (empty($record)) {
-            return null;
+        try {
+            $record = $this->getByLogin($userName);
+            if (empty($record)) {
+                return null;
+            }
+
+            if (!$this->passMode->checkHash(isset($params['password']) ? strval($params['password']): '', $record->pass)) {
+                return null;
+            }
+            return $record;
+
+        } catch (AuthSourcesException | MapperException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
         }
-        if (!$this->passMode->checkHash(isset($params['password']) ? strval($params['password']): '', $record->pass)) {
-            return null;
-        }
-        return $record;
     }
 
-    /**
-     * @param string $userName
-     * @throws MapperException
-     * @return Interfaces\IUser|null
-     */
-    public function getDataOnly(string $userName): ?Interfaces\IUser
+    public function getDataOnly(string $userName): ?acc_interfaces\IUser
     {
-        return $this->getByLogin($userName);
+        try {
+            return $this->getByLogin($userName);
+
+        } catch (MapperException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
+        }
     }
 
-    /**
-     * @param string $userName
-     * @param string|null $certKey
-     * @param string|null $certSalt
-     * @throws MapperException
-     * @return bool
-     */
     public function updateCertKeys(string $userName, ?string $certKey, ?string $certSalt): bool
     {
-        $record = clone $this->usersRecord;
-        $record->login = $userName;
-        $record->load();
-        $record->cert = strval($certKey);
-        $record->salt = strval($certSalt);
-        return $record->save();
+        try {
+            $record = clone $this->usersRecord;
+            $record->login = $userName;
+            $record->load();
+            $record->cert = strval($certKey);
+            $record->salt = strval($certSalt);
+            return $record->save();
+
+        } catch (MapperException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
+        }
     }
 
-    /**
-     * @param string $userName
-     * @throws MapperException
-     * @return Interfaces\IUserCert|null
-     */
-    public function getCertData(string $userName): ?Interfaces\IUserCert
+    public function getCertData(string $userName): ?acc_interfaces\IUserCert
     {
-        return $this->getByLogin($userName);
+        try {
+            return $this->getByLogin($userName);
+
+        } catch (MapperException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
+        }
     }
 
     /**
@@ -110,83 +109,83 @@ class AccountsDatabase implements Interfaces\IAuthCert, Interfaces\IWorkAccounts
         return $record;
     }
 
-    /**
-     * @param Interfaces\IUser $user
-     * @param string $password
-     * @throws AuthSourcesException
-     * @throws MapperException
-     * @return bool
-     */
-    public function createAccount(Interfaces\IUser $user, string $password): bool
+    public function createAccount(acc_interfaces\IUser $user, string $password): bool
     {
-        $record = clone $this->usersRecord;
-        $this->checkLogin($user->getAuthName());
-        $record->login = $user->getAuthName();
-        $record->groupId = $user->getGroup();
-        $record->display = $user->getDisplayName();
-        return $record->save(true);
+        try {
+            $record = clone $this->usersRecord;
+            $this->checkLogin($user->getAuthName());
+            $record->login = $user->getAuthName();
+            $record->groupId = $user->getGroup();
+            $record->display = $user->getDisplayName();
+            return $record->save(true);
+
+        } catch (MapperException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
+        }
     }
 
     /**
-     * @throws MapperException
+     * @throws AccountsException
      * @return Database\UsersRecord[]
      */
     public function readAccounts(): array
     {
-        $search = new Search(clone $this->usersRecord);
-        return $search->getResults();
+        try {
+            $search = new Search(clone $this->usersRecord);
+            return $search->getResults();
+
+        } catch (MapperException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
+        }
     }
 
-    /**
-     * @param Interfaces\IUser $user
-     * @throws AuthSourcesException
-     * @throws MapperException
-     * @return bool
-     */
-    public function updateAccount(Interfaces\IUser $user): bool
+    public function updateAccount(acc_interfaces\IUser $user): bool
     {
-        $this->checkLogin($user->getAuthName(), $user->getAuthId());
-        $record = clone $this->usersRecord;
-        $record->id = $user->getAuthId();
-        $record->load();
-        $record->login = $user->getAuthName();
-        $record->groupId = $user->getGroup();
-        $record->display = $user->getDisplayName();
-        return $record->save();
+        try {
+            $this->checkLogin($user->getAuthName(), $user->getAuthId());
+            $record = clone $this->usersRecord;
+            $record->id = $user->getAuthId();
+            $record->load();
+            $record->login = $user->getAuthName();
+            $record->groupId = $user->getGroup();
+            $record->display = $user->getDisplayName();
+            return $record->save();
+
+        } catch (MapperException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
+        }
     }
 
-    /**
-     * @param string $userName
-     * @param string $passWord
-     * @throws AuthSourcesException
-     * @throws MapperException
-     * @return bool
-     */
     public function updatePassword(string $userName, string $passWord): bool
     {
-        $record = clone $this->usersRecord;
-        $record->login = $userName;
-        $record->load();
-        $record->pass = $this->passMode->createHash($passWord);
-        return $record->save();
+        try {
+            $record = clone $this->usersRecord;
+            $record->login = $userName;
+            $record->load();
+            $record->pass = $this->passMode->createHash($passWord);
+            return $record->save();
+
+        } catch (AuthSourcesException | MapperException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
+        }
     }
 
-    /**
-     * @param string $userName
-     * @throws MapperException
-     * @return bool
-     */
     public function deleteAccount(string $userName): bool
     {
-        $record = clone $this->usersRecord;
-        $record->login = $userName;
-        return $record->delete();
+        try {
+            $record = clone $this->usersRecord;
+            $record->login = $userName;
+            return $record->delete();
+
+        } catch (MapperException $ex) {
+            throw new AccountsException($ex->getMessage(), $ex->getCode(), $ex);
+        }
     }
 
     /**
      * @param string $login
      * @param string $id
-     * @throws AuthSourcesException
+     * @throws AccountsException
      * @throws MapperException
      */
     protected function checkLogin(string $login, string $id = '0'): void
@@ -198,11 +197,11 @@ class AccountsDatabase implements Interfaces\IAuthCert, Interfaces\IWorkAccounts
             return;
         }
         if (1 < $amount) {
-            throw new AuthSourcesException('Too many users with that login!');
+            throw new AccountsException('Too many users with that login!');
         }
         $user->load();
         if ($id && ($user->id != $id)) {
-            throw new AuthSourcesException('Login already used.');
+            throw new AccountsException('Login already used.');
         }
     }
 }

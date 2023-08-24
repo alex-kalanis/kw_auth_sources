@@ -3,8 +3,7 @@
 namespace kalanis\kw_auth_sources\Sources\Dummy;
 
 
-use kalanis\kw_auth_sources\Interfaces;
-use kalanis\kw_auth_sources\Interfaces\IUserCert;
+use kalanis\kw_accounts\Interfaces;
 
 
 /**
@@ -19,7 +18,7 @@ class AccountsCerts extends Accounts implements Interfaces\IAuthCert
         return false;
     }
 
-    public function getCertData(string $userName): ?IUserCert
+    public function getCertData(string $userName): ?Interfaces\IUserCert
     {
         return null;
     }

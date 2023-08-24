@@ -3,7 +3,7 @@
 namespace kalanis\kw_auth_sources\Access\SourcesAdapters;
 
 
-use kalanis\kw_auth_sources\Interfaces;
+use kalanis\kw_accounts\Interfaces;
 
 
 /**
@@ -14,11 +14,11 @@ abstract class AAdapter
 {
     /** @var Interfaces\IAuth */
     protected $auth = null;
-    /** @var Interfaces\IWorkAccounts */
+    /** @var Interfaces\IProcessAccounts */
     protected $accounts = null;
-    /** @var Interfaces\IWorkClasses */
+    /** @var Interfaces\IProcessClasses */
     protected $classes = null;
-    /** @var Interfaces\IWorkGroups */
+    /** @var Interfaces\IProcessGroups */
     protected $groups = null;
 
     public function getAuth(): Interfaces\IAuth
@@ -26,17 +26,17 @@ abstract class AAdapter
         return $this->auth;
     }
 
-    public function getAccounts(): Interfaces\IWorkAccounts
+    public function getAccounts(): Interfaces\IProcessAccounts
     {
         return $this->accounts;
     }
 
-    public function getClasses(): Interfaces\IWorkClasses
+    public function getClasses(): Interfaces\IProcessClasses
     {
         return $this->classes;
     }
 
-    public function getGroups(): Interfaces\IWorkGroups
+    public function getGroups(): Interfaces\IProcessGroups
     {
         return $this->groups;
     }

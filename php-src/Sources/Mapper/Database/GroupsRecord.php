@@ -3,9 +3,11 @@
 namespace kalanis\kw_auth_sources\Sources\Mapper\Database;
 
 
-use kalanis\kw_auth_sources\Interfaces\IGroup;
+use kalanis\kw_accounts\AccountsException;
+use kalanis\kw_accounts\Interfaces\IGroup;
 use kalanis\kw_auth_sources\Traits\TSeparated;
 use kalanis\kw_mapper\Interfaces\IEntryType;
+use kalanis\kw_mapper\MapperException;
 use kalanis\kw_mapper\Records\ASimpleRecord;
 
 
@@ -41,15 +43,31 @@ class GroupsRecord extends ASimpleRecord implements IGroup
         $this->setMapper(GroupsMapper::class);
     }
 
+    /**
+     * @param string|null $id
+     * @param string|null $name
+     * @param string|null $desc
+     * @param string|null $authorId
+     * @param int|null $status
+     * @param string[]|null $parents
+     * @param array<string|int, string|int|float|bool>|null $extra
+     * @throws AccountsException
+     * @throws MapperException
+     */
     public function setGroupData(?string $id, ?string $name, ?string $desc, ?string $authorId, ?int $status, ?array $parents = [], ?array $extra = []): void
     {
-        $this->id = $id ?? $this->id;
+        if (empty($id)) {
+            throw new AccountsException('No user ID');
+        }
+        $this->id = $id;
+        $this->load();
         $this->name = $name ?? $this->name;
         $this->desc = $desc ?? $this->desc;
         $this->authorId = $authorId ?? $this->authorId;
         $this->status = $status ?? $this->status;
         $this->parents = $parents ? $this->compactStr($parents) : $this->parents;
         $this->extra = !is_null($extra) ? array_merge($this->extra, $extra) : $this->extra;
+        $this->save();
     }
 
     public function getGroupId(): string

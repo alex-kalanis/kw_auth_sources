@@ -3,7 +3,7 @@
 namespace kalanis\kw_auth_sources\Sources\Memory;
 
 
-use kalanis\kw_auth_sources\Interfaces;
+use kalanis\kw_accounts\Interfaces;
 
 
 /**
@@ -11,7 +11,7 @@ use kalanis\kw_auth_sources\Interfaces;
  * @package kalanis\kw_auth_sources\Sources\Memory
  * Work with groups of users - in memory
  */
-class Groups implements Interfaces\IWorkGroups
+class Groups implements Interfaces\IProcessGroups
 {
     /** @var Interfaces\IGroup[] */
     protected $local = [];

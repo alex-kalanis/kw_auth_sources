@@ -12,6 +12,7 @@
     "license": "BSD-3-Clause",
     "type": "library",
     "require": {
+        "alex-kalanis/kw_accounts": ">=1.0 <2",
         "alex-kalanis/kw_locks": ">=2.0 <3",
         "alex-kalanis/kw_paths": ">=3.0 <4",
         "php": ">=7.2.0"
