@@ -30,16 +30,16 @@ class CompositeSources implements Interfaces\IAuthCert, Interfaces\IProcessAccou
         return $this->adapter->getAuth()->authenticate($userName, $params);
     }
 
-    public function updateCertKeys(string $userName, ?string $certKey, ?string $certSalt): bool
+    public function updateCertData(string $userName, ?string $certKey, ?string $certSalt): bool
     {
         $auth = $this->adapter->getAuth();
         if ($auth instanceof Interfaces\IAuthCert) {
-            return $auth->updateCertKeys($userName, $certKey, $certSalt);
+            return $auth->updateCertData($userName, $certKey, $certSalt);
         }
         return false;
     }
 
-    public function getCertData(string $userName): ?Interfaces\IUserCert
+    public function getCertData(string $userName): ?Interfaces\ICert
     {
         $auth = $this->adapter->getAuth();
         if ($auth instanceof Interfaces\IAuthCert) {

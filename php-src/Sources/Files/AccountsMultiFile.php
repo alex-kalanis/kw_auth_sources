@@ -164,7 +164,7 @@ class AccountsMultiFile implements acc_interfaces\IAuthCert, acc_interfaces\IPro
         return new FileCertUser();
     }
 
-    public function getCertData(string $userName): ?acc_interfaces\IUserCert
+    public function getCertData(string $userName): ?acc_interfaces\ICert
     {
         $name = $this->stripChars($userName);
 
@@ -186,7 +186,7 @@ class AccountsMultiFile implements acc_interfaces\IAuthCert, acc_interfaces\IPro
                         && ($class instanceof acc_interfaces\IUserCert)
                         && $this->status->allowCert($class->getStatus())
                     ) {
-                        $class->addCertInfo(
+                        $class->updateCertInfo(
                             strval(base64_decode(strval($line[static::SH_CERT_KEY]))),
                             strval($line[static::SH_CERT_SALT])
                         );
@@ -238,7 +238,7 @@ class AccountsMultiFile implements acc_interfaces\IAuthCert, acc_interfaces\IPro
         }
     }
 
-    public function updateCertKeys(string $userName, ?string $certKey, ?string $certSalt): bool
+    public function updateCertData(string $userName, ?string $certKey, ?string $certSalt): bool
     {
         $name = $this->stripChars($userName);
 
@@ -285,7 +285,7 @@ class AccountsMultiFile implements acc_interfaces\IAuthCert, acc_interfaces\IPro
         $certKey = '';
 
         if ($user instanceof acc_interfaces\IUserCert) {
-            $certSalt = $this->stripChars($user->getPubSalt());
+            $certSalt = $this->stripChars($user->getSalt());
             $certKey = $user->getPubKey();
         }
 

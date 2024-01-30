@@ -35,7 +35,7 @@ ignored and another can be available under "extra".
 ```
 {
     "require": {
-        "alex-kalanis/kw_auth_sources": "3.0"
+        "alex-kalanis/kw_auth_sources": "4.0"
     }
 }
 ```

@@ -73,7 +73,7 @@ class UsersRecord extends ASimpleRecord implements IUserCert
      * @param string|null $salt
      * @throws MapperException
      */
-    public function addCertInfo(?string $key, ?string $salt): void
+    public function updateCertInfo(?string $key, ?string $salt): void
     {
         $this->load();
         $this->cert = $key ?? $this->cert;
@@ -121,7 +121,7 @@ class UsersRecord extends ASimpleRecord implements IUserCert
         return (array) $this->extra;
     }
 
-    public function getPubSalt(): string
+    public function getSalt(): string
     {
         return strval($this->salt);
     }

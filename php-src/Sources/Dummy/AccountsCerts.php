@@ -13,12 +13,12 @@ use kalanis\kw_accounts\Interfaces;
  */
 class AccountsCerts extends Accounts implements Interfaces\IAuthCert
 {
-    public function updateCertKeys(string $userName, ?string $certKey, ?string $certSalt): bool
+    public function updateCertData(string $userName, ?string $certKey, ?string $certSalt): bool
     {
         return false;
     }
 
-    public function getCertData(string $userName): ?Interfaces\IUserCert
+    public function getCertData(string $userName): ?Interfaces\ICert
     {
         return null;
     }

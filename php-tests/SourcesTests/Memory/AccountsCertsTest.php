@@ -3,15 +3,13 @@
 namespace SourcesTests\Memory;
 
 
-use kalanis\kw_auth_sources\AuthSourcesException;
-use kalanis\kw_locks\LockException;
+use kalanis\kw_accounts\AccountsException;
 
 
 class AccountsCertsTest extends AMemoryTest
 {
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testCertData(): void
     {
@@ -20,23 +18,22 @@ class AccountsCertsTest extends AMemoryTest
 
         $data = $lib->getCertData('worker');
         $this->assertEquals('donna', $data->getPubKey());
-        $this->assertEquals('erch', $data->getPubSalt());
+        $this->assertEquals('erch', $data->getSalt());
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testUpdateCert(): void
     {
         $lib = $this->fullCertFileSources();
-        $this->assertTrue($lib->updateCertKeys('manager', 'foo', 'bar'));
+        $this->assertTrue($lib->updateCertData('manager', 'foo', 'bar'));
 
         $data = $lib->getCertData('manager');
         $this->assertNotNull($data);
         $this->assertEquals('foo', $data->getPubKey());
-        $this->assertEquals('bar', $data->getPubSalt());
+        $this->assertEquals('bar', $data->getSalt());
 
-        $this->assertFalse($lib->updateCertKeys('not-exists', 'foo', 'bar'));
+        $this->assertFalse($lib->updateCertData('not-exists', 'foo', 'bar'));
     }
 }

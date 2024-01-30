@@ -185,7 +185,7 @@ class AccountsMultiFilesTest extends AFilesTest
         $lib = $this->emptyFilesSources();
 
         $this->expectException(AccountsException::class);
-        $lib->updateCertKeys('someone', 'can be empty in this case', 'not important');
+        $lib->updateCertData('someone', 'can be empty in this case', 'not important');
     }
 
     /**
@@ -196,7 +196,7 @@ class AccountsMultiFilesTest extends AFilesTest
         $lib = $this->lockFailFilesSources();
 
         $this->expectException(AccountsException::class);
-        $lib->updateCertKeys('manager', 'can be empty in this case', 'not important');
+        $lib->updateCertData('manager', 'can be empty in this case', 'not important');
     }
 
     /**
@@ -268,9 +268,9 @@ class AccountsMultiFilesTest extends AFilesTest
             'WheĐn yoĐu dđo nođt knđow',
             null
         );
-        $user->addCertInfo('==public key for accessing that content==', 'hidden salt');
+        $user->updateCertInfo('==public key for accessing that content==', 'hidden salt');
         $lib->updateAccount($user);
-        $lib->updateCertKeys($user->getAuthName(), $user->getPubKey(), $user->getPubSalt());
+        $lib->updateCertData($user->getAuthName(), $user->getPubKey(), $user->getSalt());
 
         // update name
         $user->setUserData(
@@ -289,7 +289,7 @@ class AccountsMultiFilesTest extends AFilesTest
         $this->assertEquals('When you do not know', $saved->getDisplayName());
         $this->assertEquals(2, $saved->getClass());
         $this->assertEquals($user->getPubKey(), $saved->getPubKey());
-        $this->assertEquals($user->getPubSalt(), $saved->getPubSalt());
+        $this->assertEquals($user->getSalt(), $saved->getSalt());
 
 
         // update password

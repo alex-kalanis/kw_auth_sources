@@ -4,17 +4,15 @@ namespace AccessTests;
 
 
 use CommonTestClass;
+use kalanis\kw_accounts\AccountsException;
 use kalanis\kw_auth_sources\Access;
-use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\Sources;
-use kalanis\kw_locks\LockException;
 
 
 class CompositeTest extends CommonTestClass
 {
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testBasic(): void
     {
@@ -27,7 +25,7 @@ class CompositeTest extends CommonTestClass
 
         $this->assertNull($lib->authenticate('whatever'));
         $this->assertNull($lib->getDataOnly('whatever'));
-        $this->assertFalse($lib->updateCertKeys('whatever', null, null));
+        $this->assertFalse($lib->updateCertData('whatever', null, null));
         $this->assertNull($lib->getCertData('whatever'));
 
         $this->assertFalse($lib->createAccount(new \MockUser(), 'not important'));
@@ -46,8 +44,7 @@ class CompositeTest extends CommonTestClass
     }
 
     /**
-     * @throws AuthSourcesException
-     * @throws LockException
+     * @throws AccountsException
      */
     public function testCerts(): void
     {
@@ -58,7 +55,7 @@ class CompositeTest extends CommonTestClass
 
         $this->assertNull($lib->authenticate('whatever'));
         $this->assertNull($lib->getDataOnly('whatever'));
-        $this->assertFalse($lib->updateCertKeys('whatever', null, null));
+        $this->assertFalse($lib->updateCertData('whatever', null, null));
         $this->assertNull($lib->getCertData('whatever'));
     }
 }

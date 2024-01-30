@@ -16,18 +16,18 @@ class AccountsCerts extends Accounts implements Interfaces\IAuthCert
     /** @var Interfaces\IUserCert[] */
     protected $local = [];
 
-    public function updateCertKeys(string $userName, ?string $certKey, ?string $certSalt): bool
+    public function updateCertData(string $userName, ?string $certKey, ?string $certSalt): bool
     {
         foreach ($this->local as $item) {
             if ($item->getAuthName() == $userName) {
-                $item->addCertInfo($certKey, $certSalt);
+                $item->updateCertInfo($certKey, $certSalt);
                 return true;
             }
         }
         return false;
     }
 
-    public function getCertData(string $userName): ?Interfaces\IUserCert
+    public function getCertData(string $userName): ?Interfaces\ICert
     {
         $user = $this->getDataOnly($userName);
         return ($user && ($user instanceof Interfaces\IUserCert)) ? clone $user : null;

@@ -68,7 +68,7 @@ class AccountsDatabase implements acc_interfaces\IAuthCert, acc_interfaces\IProc
         }
     }
 
-    public function updateCertKeys(string $userName, ?string $certKey, ?string $certSalt): bool
+    public function updateCertData(string $userName, ?string $certKey, ?string $certSalt): bool
     {
         try {
             $record = clone $this->usersRecord;
@@ -83,7 +83,7 @@ class AccountsDatabase implements acc_interfaces\IAuthCert, acc_interfaces\IProc
         }
     }
 
-    public function getCertData(string $userName): ?acc_interfaces\IUserCert
+    public function getCertData(string $userName): ?acc_interfaces\ICert
     {
         try {
             return $this->getByLogin($userName);

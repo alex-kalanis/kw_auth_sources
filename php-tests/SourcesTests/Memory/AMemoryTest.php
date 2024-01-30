@@ -96,7 +96,7 @@ abstract class AMemoryTest extends CommonTestClass
         $g2->setUserData('1001', 'manager', '1', 2, 1, 'Manage', '/data/', ["hint" => "Uncut", "age" => 39, "powers" => ["foo","bar","baz"]]);
         $g3 = new FileCertUser();
         $g3->setUserData('1002', 'worker', '1', 3, 1, 'Worker', '/data/');
-        $g3->addCertInfo('donna', 'erch');
+        $g3->updateCertInfo('donna', 'erch');
         return [$g1, $g2, $g3];
     }
 }
