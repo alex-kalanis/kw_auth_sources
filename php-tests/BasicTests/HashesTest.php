@@ -26,6 +26,17 @@ class HashesTest extends CommonTestClass
      * @throws AuthSourcesException
      * @dataProvider passwordsProvider
      */
+    public function testOriginalLongSalt(string $what): void
+    {
+        $lib = new Hashes\KwOrig('asdfghkl123qweqrtziop456yxcvbnm789asdfghkl123qweqrtziop456yxcvbnm789asdfghkl123qweqrtziop456yxcvbnm789');
+        $this->assertTrue($lib->checkHash($what, $lib->createHash($what)));
+    }
+
+    /**
+     * @param string $what
+     * @throws AuthSourcesException
+     * @dataProvider passwordsProvider
+     */
     public function testMd5(string $what): void
     {
         $lib = new Hashes\Md5();

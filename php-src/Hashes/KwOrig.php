@@ -18,8 +18,7 @@ class KwOrig implements IHashes
 {
     use TLang;
 
-    /** @var string */
-    protected $salt = '';
+    protected string $salt = '';
 
     public function __construct(string $salt, ?IKAusTranslations $lang = null)
     {

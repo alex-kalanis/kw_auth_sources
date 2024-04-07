@@ -19,12 +19,11 @@ class Accounts implements acc_interfaces\IAuth, acc_interfaces\IProcessAccounts
 {
     use TLang;
 
-    /** @var Interfaces\IHashes */
-    protected $mode = null;
+    protected Interfaces\IHashes $mode;
     /** @var acc_interfaces\IUser[] */
-    protected $local = [];
+    protected array $local = [];
     /** @var array<string, string> */
-    protected $pass = [];
+    protected array $pass = [];
 
     /**
      * @param Interfaces\IHashes $mode

@@ -24,14 +24,13 @@ class Files extends AStorage
     use TLang;
     use TToString;
 
-    /** @var IProcessFiles */
-    protected $files = null;
+    protected IProcessFiles $files;
 
-    public function __construct(IProcessFiles $files, ?IKAusTranslations $ausLang = null, ?IFLTranslations $lang = null)
+    public function __construct(IProcessFiles $files, ?IKAusTranslations $ausLang = null, ?IFLTranslations $flLang = null)
     {
         $this->files = $files;
         $this->setAusLang($ausLang);
-        $this->setLang($lang);
+        $this->setFlLang($flLang); // TToString
     }
 
     protected function open(array $path): string

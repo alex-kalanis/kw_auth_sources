@@ -12,20 +12,21 @@
     "license": "BSD-3-Clause",
     "type": "library",
     "require": {
-        "alex-kalanis/kw_accounts": ">=2.0 <3",
-        "alex-kalanis/kw_locks": ">=2.0 <3",
-        "alex-kalanis/kw_paths": ">=3.0 <4",
-        "php": ">=7.2.0"
+        "alex-kalanis/kw_accounts": ">=3.0 <4",
+        "alex-kalanis/kw_locks": ">=3.0 <4",
+        "alex-kalanis/kw_paths": ">=4.0 <5",
+        "php": ">=7.4.0"
     },
     "require-dev": {
         "ext-json": "*",
-        "alex-kalanis/kw_mapper": ">=2.0 <3",
-        "alex-kalanis/kw_storage": ">=4.0 <5",
-        "alex-kalanis/kw_files": ">=3.2 <4",
+        "alex-kalanis/kw_mapper": ">=3.0 <4",
+        "alex-kalanis/kw_storage": ">=5.0 <6",
+        "alex-kalanis/kw_files": ">=4.0 <5",
+        "shipmonk/composer-dependency-analyser": "^1.4",
         "friendsofphp/php-cs-fixer": "^3.0",
         "phpstan/phpstan": "^1.0",
         "phpstan/phpstan-phpunit": "^1.0",
-        "phpunit/phpunit": ">=7.2 <=9"
+        "phpunit/phpunit": ">=8.0 <=9"
     },
     "suggest": {
         "alex-kalanis/kw_mapper": "Mapper for accessing resources in KWCMS"

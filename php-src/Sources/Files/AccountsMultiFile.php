@@ -26,34 +26,30 @@ class AccountsMultiFile implements acc_interfaces\IAuthCert, acc_interfaces\IPro
     use Traits\TStatusTransform;
     use account_traits\TExpiration;
 
-    const PW_NAME = 0;
-    const PW_ID = 1;
-    const PW_GROUP = 2;
-    const PW_CLASS = 3;
-    const PW_STATUS = 4;
-    const PW_DISPLAY = 5;
-    const PW_DIR = 6;
-    const PW_EXTRA = 7;
-    const PW_FEED = 8;
+    protected const PW_NAME = 0;
+    protected const PW_ID = 1;
+    protected const PW_GROUP = 2;
+    protected const PW_CLASS = 3;
+    protected const PW_STATUS = 4;
+    protected const PW_DISPLAY = 5;
+    protected const PW_DIR = 6;
+    protected const PW_EXTRA = 7;
+    protected const PW_FEED = 8;
 
-    const SH_NAME = 0;
-    const SH_PASS = 1;
-    const SH_CHANGE_LAST = 2;
-    const SH_CHANGE_NEXT = 3;
-    const SH_CERT_SALT = 4;
-    const SH_CERT_KEY = 5;
-    const SH_FEED = 6;
+    protected const SH_NAME = 0;
+    protected const SH_PASS = 1;
+    protected const SH_CHANGE_LAST = 2;
+    protected const SH_CHANGE_NEXT = 3;
+    protected const SH_CERT_SALT = 4;
+    protected const SH_CERT_KEY = 5;
+    protected const SH_FEED = 6;
 
-    /** @var Storages\AStorage */
-    protected $storage = null;
-    /** @var Interfaces\IHashes */
-    protected $mode = null;
-    /** @var Interfaces\IStatus */
-    protected $status = null;
-    /** @var Interfaces\IExtraParser */
-    protected $extraParser = null;
+    protected Storages\AStorage $storage;
+    protected Interfaces\IHashes $mode;
+    protected Interfaces\IStatus $status;
+    protected Interfaces\IExtraParser $extraParser;
     /** @var string[] */
-    protected $path = [];
+    protected array $path = [];
 
     /**
      * @param Storages\AStorage $storage

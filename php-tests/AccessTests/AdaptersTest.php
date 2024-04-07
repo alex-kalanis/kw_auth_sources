@@ -6,6 +6,7 @@ namespace AccessTests;
 use CommonTestClass;
 use kalanis\kw_accounts\AccountsException;
 use kalanis\kw_auth_sources\Access;
+use kalanis\kw_auth_sources\AuthSourcesException;
 use kalanis\kw_auth_sources\ExtraParsers\Serialize;
 use kalanis\kw_auth_sources\Hashes\Md5;
 use kalanis\kw_auth_sources\Sources;
@@ -28,8 +29,49 @@ class AdaptersTest extends CommonTestClass
     }
 
     /**
+     * @throws AuthSourcesException
+     */
+    public function testNotSetAuth(): void
+    {
+        $lib = new XAccessAdapter();
+        $this->expectException(AuthSourcesException::class);
+        $lib->getAuth();
+    }
+
+    /**
+     * @throws AuthSourcesException
+     */
+    public function testNotSetAccounts(): void
+    {
+        $lib = new XAccessAdapter();
+        $this->expectException(AuthSourcesException::class);
+        $lib->getAccounts();
+    }
+
+    /**
+     * @throws AuthSourcesException
+     */
+    public function testNotSetGroups(): void
+    {
+        $lib = new XAccessAdapter();
+        $this->expectException(AuthSourcesException::class);
+        $lib->getGroups();
+    }
+
+    /**
+     * @throws AuthSourcesException
+     */
+    public function testNotSetClasses(): void
+    {
+        $lib = new XAccessAdapter();
+        $this->expectException(AuthSourcesException::class);
+        $lib->getClasses();
+    }
+
+    /**
      * @throws AccountsException
      * @throws StorageException
+     * @throws AuthSourcesException
      */
     public function testFirstInstance(): void
     {
@@ -177,3 +219,7 @@ class AdaptersTest extends CommonTestClass
         );
     }
 }
+
+
+class XAccessAdapter extends Access\SourcesAdapters\AAdapter
+{}

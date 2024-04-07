@@ -26,23 +26,20 @@ class Groups implements acc_interfaces\IProcessGroups
     use Traits\TStatusTransform;
 
     // default positions
-    const GRP_ID = 0;
-    const GRP_NAME = 1;
-    const GRP_AUTHOR = 2;
-    const GRP_DESC = 3;
-    const GRP_STATUS = 4;
-    const GRP_PARENTS = 5;
-    const GRP_EXTRA = 6;
-    const GRP_FEED = 7;
+    protected const GRP_ID = 0;
+    protected const GRP_NAME = 1;
+    protected const GRP_AUTHOR = 2;
+    protected const GRP_DESC = 3;
+    protected const GRP_STATUS = 4;
+    protected const GRP_PARENTS = 5;
+    protected const GRP_EXTRA = 6;
+    protected const GRP_FEED = 7;
 
-    /** @var Storages\AStorage */
-    protected $storage = null;
-    /** @var acc_interfaces\IProcessAccounts */
-    protected $accounts = null;
-    /** @var Interfaces\IExtraParser */
-    protected $extraParser = null;
+    protected Storages\AStorage $storage;
+    protected acc_interfaces\IProcessAccounts $accounts;
+    protected Interfaces\IExtraParser $extraParser;
     /** @var string[] */
-    protected $path = [];
+    protected array $path = [];
 
     /**
      * @param Storages\AStorage $storage

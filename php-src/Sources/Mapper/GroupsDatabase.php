@@ -20,10 +20,8 @@ class GroupsDatabase implements Interfaces\IProcessGroups
 {
     use TSeparated;
 
-    /** @var Database\GroupsRecord */
-    protected $groupsRecord = null;
-    /** @var Database\UsersRecord */
-    protected $usersRecord = null;
+    protected Database\GroupsRecord $groupsRecord;
+    protected Database\UsersRecord $usersRecord;
 
     public function __construct()
     {

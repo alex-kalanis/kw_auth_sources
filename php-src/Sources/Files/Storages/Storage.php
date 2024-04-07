@@ -24,8 +24,7 @@ class Storage extends AStorage
     use TLang;
     use TToString;
 
-    /** @var IStorage */
-    protected $storage = null;
+    protected IStorage $storage;
 
     public function __construct(IStorage $storage, ?IKAusTranslations $ausLang = null)
     {

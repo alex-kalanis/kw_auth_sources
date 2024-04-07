@@ -32,6 +32,7 @@ class FactoryTest extends CommonTestClass
      * @throws AuthSourcesException
      * @throws LockException
      * @dataProvider passProvider
+     * @requires extension mysqli
      */
     public function testPass($param): void
     {
@@ -44,9 +45,7 @@ class FactoryTest extends CommonTestClass
     }
 
     /**
-     * @throws AuthSourcesException
      * @throws FilesException
-     * @throws LockException
      * @throws PathsException
      * @return array
      */
@@ -54,9 +53,6 @@ class FactoryTest extends CommonTestClass
     {
         $storage = new Storage(new DefaultKey(), new Memory());
         return [
-            [(new Access\Factory())->getSources('db')],
-            ['ldap'],
-            ['db'],
             [(new files_factory())->getClass(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data')],
             [__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data'],
             [['path' => __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'data']],
@@ -88,6 +84,63 @@ class FactoryTest extends CommonTestClass
                 new Sources\Dummy\Groups(),
                 new Sources\Classes()
             )], // from composite element
+        ];
+    }
+
+    /**
+     * @param $param
+     * @throws AuthSourcesException
+     * @throws LockException
+     * @dataProvider passProviderSql
+     * @requires extension mysqli
+     */
+    public function testPassSql($param): void
+    {
+        $lang = null;
+        if (is_array($param) && isset($param['xlang']) && ($param['xlang'] instanceof Interfaces\IKAusTranslations)) {
+            $lang = $param['xlang'];
+        }
+        $lib = new Access\Factory($lang);
+        $this->assertInstanceOf(Access\CompositeSources::class, $lib->getSources($param));
+    }
+
+    /**
+     * @throws AuthSourcesException
+     * @throws LockException
+     * @return array
+     */
+    public function passProviderSql(): array
+    {
+        return [
+            [(new Access\Factory())->getSources('db')],
+            ['db'],
+        ];
+    }
+
+    /**
+     * @param $param
+     * @throws AuthSourcesException
+     * @throws LockException
+     * @dataProvider passProviderLdap
+     * @requires extension ldap
+     */
+    public function testPassLdap($param): void
+    {
+        $lang = null;
+        if (is_array($param) && isset($param['xlang']) && ($param['xlang'] instanceof Interfaces\IKAusTranslations)) {
+            $lang = $param['xlang'];
+        }
+        $lib = new Access\Factory($lang);
+        $this->assertInstanceOf(Access\CompositeSources::class, $lib->getSources($param));
+    }
+
+    /**
+     * @return array
+     */
+    public function passProviderLdap(): array
+    {
+        return [
+            ['ldap'],
         ];
     }
 
@@ -290,6 +343,21 @@ class XFlLang implements IFLTranslations
     {
         return 'mock';
     }
+
+    public function flBadMode(int $mode): string
+    {
+        return 'mock';
+    }
+
+    public function flCannotSeekFile(string $fileName): string
+    {
+        return 'mock';
+    }
+
+    public function flNoProcessStreamSet(): string
+    {
+        return 'mock';
+    }
 }
 
 
@@ -410,6 +478,26 @@ class XAuLang extends XFlLang implements Interfaces\IKAusTranslations, IKLTransl
     }
 
     public function iklCannotUseOS(): string
+    {
+        return 'mock';
+    }
+
+    public function kauGroupMissAuth(): string
+    {
+        return 'mock';
+    }
+
+    public function kauGroupMissAccounts(): string
+    {
+        return 'mock';
+    }
+
+    public function kauGroupMissClasses(): string
+    {
+        return 'mock';
+    }
+
+    public function kauGroupMissGroups(): string
     {
         return 'mock';
     }

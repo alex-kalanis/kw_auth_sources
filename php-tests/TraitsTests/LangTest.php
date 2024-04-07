@@ -86,4 +86,24 @@ class XTrans implements IKAusTranslations
     {
         return 'mock';
     }
+
+    public function kauGroupMissAuth(): string
+    {
+        return 'mock';
+    }
+
+    public function kauGroupMissAccounts(): string
+    {
+        return 'mock';
+    }
+
+    public function kauGroupMissClasses(): string
+    {
+        return 'mock';
+    }
+
+    public function kauGroupMissGroups(): string
+    {
+        return 'mock';
+    }
 }

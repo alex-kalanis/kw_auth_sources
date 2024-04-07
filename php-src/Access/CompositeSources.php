@@ -12,8 +12,7 @@ use kalanis\kw_accounts\Interfaces;
  */
 class CompositeSources implements Interfaces\IAuthCert, Interfaces\IProcessAccounts, Interfaces\IProcessClasses, Interfaces\IProcessGroups
 {
-    /** @var SourcesAdapters\AAdapter */
-    protected $adapter = null;
+    protected SourcesAdapters\AAdapter $adapter;
 
     public function __construct(SourcesAdapters\AAdapter $adapter)
     {

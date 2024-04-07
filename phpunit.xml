@@ -49,7 +49,6 @@
             <directory>php-tests/BasicTests</directory>
             <directory>php-tests/TraitsTests</directory>
             <directory>php-tests/SourcesTests</directory>
-            <directory>php-tests/MethodsTests</directory>
             <directory>php-tests/AccessTests</directory>
             <directory>php-tests/ExtraParsersTests</directory>
         </testsuite>

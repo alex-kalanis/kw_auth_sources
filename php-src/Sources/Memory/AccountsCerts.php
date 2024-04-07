@@ -14,7 +14,7 @@ use kalanis\kw_accounts\Interfaces;
 class AccountsCerts extends Accounts implements Interfaces\IAuthCert
 {
     /** @var Interfaces\IUserCert[] */
-    protected $local = [];
+    protected array $local = [];
 
     public function updateCertData(string $userName, ?string $certKey, ?string $certSalt): bool
     {

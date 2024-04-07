@@ -74,4 +74,24 @@ class Translations implements IKAusTranslations
     {
         return 'No delimiter set in auth files!';
     }
+
+    public function kauGroupMissAuth(): string
+    {
+        return 'Class which manipulates the authentication is not set!';
+    }
+
+    public function kauGroupMissAccounts(): string
+    {
+        return 'Class which manipulates the accounts itselves is not set!';
+    }
+
+    public function kauGroupMissClasses(): string
+    {
+        return 'Class which manipulates the user classes is not set!';
+    }
+
+    public function kauGroupMissGroups(): string
+    {
+        return 'Class which manipulates the user groups is not set!';
+    }
 }

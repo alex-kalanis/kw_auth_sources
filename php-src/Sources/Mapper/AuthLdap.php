@@ -18,8 +18,7 @@ use kalanis\kw_mapper\MapperException;
  */
 class AuthLdap implements IAuth
 {
-    /** @var Ldap\LdapRecord */
-    protected $record = null;
+    protected Ldap\LdapRecord $record;
 
     public function __construct()
     {

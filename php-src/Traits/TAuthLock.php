@@ -16,8 +16,7 @@ trait TAuthLock
 {
     use TLang;
 
-    /** @var ILock|null */
-    protected $lock = null;
+    protected ?ILock $lock = null;
 
     protected function initAuthLock(?ILock $lock): void
     {

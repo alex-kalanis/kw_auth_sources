@@ -24,27 +24,23 @@ class AccountsSingleFile implements acc_interfaces\IAuth, acc_interfaces\IProces
     use Traits\TLines;
     use Traits\TStatusTransform;
 
-    const PW_ID = 0;
-    const PW_NAME = 1;
-    const PW_PASS = 2;
-    const PW_GROUP = 3;
-    const PW_CLASS = 4;
-    const PW_STATUS = 5;
-    const PW_DISPLAY = 6;
-    const PW_DIR = 7;
-    const PW_EXTRA = 8;
-    const PW_FEED = 9;
+    protected const PW_ID = 0;
+    protected const PW_NAME = 1;
+    protected const PW_PASS = 2;
+    protected const PW_GROUP = 3;
+    protected const PW_CLASS = 4;
+    protected const PW_STATUS = 5;
+    protected const PW_DISPLAY = 6;
+    protected const PW_DIR = 7;
+    protected const PW_EXTRA = 8;
+    protected const PW_FEED = 9;
 
-    /** @var Storages\AStorage */
-    protected $storage = null;
-    /** @var Interfaces\IHashes */
-    protected $mode = null;
-    /** @var Interfaces\IStatus */
-    protected $status = null;
-    /** @var Interfaces\IExtraParser */
-    protected $extraParser = null;
+    protected Storages\AStorage $storage;
+    protected Interfaces\IHashes $mode;
+    protected Interfaces\IStatus $status;
+    protected Interfaces\IExtraParser $extraParser;
     /** @var string[] */
-    protected $path = [];
+    protected array $path = [];
 
     /**
      * @param Storages\AStorage $storage where is it stored and how to access there

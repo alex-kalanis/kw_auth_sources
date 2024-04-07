@@ -25,10 +25,8 @@ class AccountsDatabase implements acc_interfaces\IAuthCert, acc_interfaces\IProc
     use TLang;
     use TSeparated;
 
-    /** @var Interfaces\IHashes */
-    protected $passMode = null;
-    /** @var Database\UsersRecord */
-    protected $usersRecord = null;
+    protected Interfaces\IHashes $passMode;
+    protected Database\UsersRecord $usersRecord;
 
     public function __construct(Interfaces\IHashes $mode, ?Interfaces\IKAusTranslations $lang = null)
     {

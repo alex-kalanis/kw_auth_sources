@@ -19,8 +19,7 @@ class Volume extends AStorage
 {
     use TLang;
 
-    /** @var string */
-    protected $startDirectory = '';
+    protected string $startDirectory = '';
 
     public function __construct(string $where, ?IKAusTranslations $ausLang = null)
     {

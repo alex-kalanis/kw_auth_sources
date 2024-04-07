@@ -14,7 +14,7 @@ use kalanis\kw_accounts\Interfaces;
 class Groups implements Interfaces\IProcessGroups
 {
     /** @var Interfaces\IGroup[] */
-    protected $local = [];
+    protected array $local = [];
 
     /**
      * @param Interfaces\IGroup[] $initial

@@ -187,13 +187,6 @@ class Factory
      */
     protected function whichStorage(array $params): Sources\Files\Storages\AStorage
     {
-        $fileLang = null;
-        if (isset($params['storage_lang']) && ($params['storage_lang'] instanceof IFLTranslations)) {
-            $fileLang = $params['storage_lang'];
-        }
-        if (!$fileLang && (($localLang = $this->getAusLang()) instanceof IFLTranslations)) {
-            $fileLang = $localLang;
-        }
         if (isset($params['storage'])) {
             if (is_object($params['storage']) && ($params['storage'] instanceof Sources\Files\Storages\AStorage)) {
                 return $params['storage'];
@@ -202,7 +195,7 @@ class Factory
                 return new Sources\Files\Storages\Storage($params['storage'], $this->getAusLang());
             }
             if (is_object($params['storage']) && ($params['storage'] instanceof CompositeAdapter)) {
-                return new Sources\Files\Storages\Files($params['storage'], $this->getAusLang(), $fileLang);
+                return new Sources\Files\Storages\Files($params['storage'], $this->getAusLang());
             }
             if (is_array($params['storage'])) {
                 try {

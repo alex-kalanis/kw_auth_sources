@@ -31,4 +31,12 @@ interface IKAusTranslations
     public function kauCombinationUnavailable(): string;
 
     public function kauNoDelimiterSet(): string;
+
+    public function kauGroupMissAuth(): string;
+
+    public function kauGroupMissAccounts(): string;
+
+    public function kauGroupMissClasses(): string;
+
+    public function kauGroupMissGroups(): string;
 }

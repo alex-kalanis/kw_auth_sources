@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 \kalanis\kw_mapper\Storage\Database\ConfigStorage::getInstance()->addConfig(
     \kalanis\kw_mapper\Storage\Database\Config::init()->setTarget(
-        IDriverSources::TYPE_RAW_MYSQLI, // no LDAP extension necessary for run
+        IDriverSources::TYPE_RAW_LDAP, // LDAP extension necessary for run
         'ldap',
         'localhost',
         1234567,
@@ -188,7 +188,7 @@ class XFailedStorage implements IStorage
         throw new StorageException('Mock');
     }
 
-    public function read(string $sharedKey)
+    public function read(string $sharedKey): string
     {
         if ($this->canOpen) {
             return $this->content;
